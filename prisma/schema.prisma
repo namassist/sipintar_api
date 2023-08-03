@@ -1,0 +1,182 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  username String @db.VarChar(100)
+  password String @db.VarChar(100)
+  token String? @db.VarChar(100)
+  role_id Int @unique
+  
+  role Role @relation(fields: [role_id], references: [id])
+  mahasiswa Mahasiswa?
+  dosen Dosen?
+  @@map("users")
+}
+
+model Role {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(100)
+  
+  user User?
+  @@map("roles")
+}
+
+model TahunAjaran {
+  id        Int      @id @default(autoincrement())
+  nama      String
+
+  mataKuliah MataKuliah[]
+  kelas Kelas[]
+  jadwal Jadwal[]
+  @@map("tahun_ajarans")
+}
+
+model Jurusan {
+  id Int @id @default(autoincrement())
+  nama_jurusan String @db.VarChar(100)
+
+  prodi Prodi[]
+  dosen Dosen[]
+  @@map("jurusans")
+}
+
+model Prodi {
+  id Int @id @default(autoincrement())
+  nama_prodi String @db.VarChar(100)
+  kode_prodi String @db.VarChar(100)
+  jurusan_id Int
+
+  jurusan Jurusan @relation(fields: [jurusan_id], references: [id])
+  kelas Kelas[]
+  @@map("prodis")
+}
+
+model Kelas {
+  id Int @id @default(autoincrement())
+  nama_kelas String @db.VarChar(100)
+  tahun_ajaran_id Int @db.Int()
+  prodi_id Int
+
+  prodi Prodi @relation(fields: [prodi_id], references: [id])
+  tahunAjaran TahunAjaran @relation(fields: [tahun_ajaran_id], references: [id])
+  mataKuliah KelasMataKuliah[]
+  mahasiswa Mahasiswa[]
+  jadwal  Jadwal[]
+  jadwalPertemuan  JadwalPertemuan[]
+  @@map("kelas")
+}
+
+model Mahasiswa {
+  id Int @id @default(autoincrement())
+  nama_mahasiswa String @db.VarChar(100)
+  nim String @db.VarChar(100)
+  user_id Int @unique
+  kelas_id Int
+
+  user User @relation(fields: [user_id], references: [id])
+  kelas Kelas @relation(fields: [kelas_id], references: [id])
+  presensiMahasiswa PresensiMahasiswa[]
+  @@map("mahasiswas")
+}
+
+model Dosen {
+  id Int @id @default(autoincrement())
+  nama_dosen String @db.VarChar(100)
+  nip String @db.VarChar(100)
+  jurusan_id Int
+  user_id Int @unique
+
+  user User @relation(fields: [user_id], references: [id])
+  jurusan Jurusan @relation(fields: [jurusan_id], references: [id])
+  mataKuliah MataKuliah[]
+  @@map("dosens")
+}
+
+model MataKuliah {
+  id Int @id @default(autoincrement())
+  kode_mk String @db.VarChar(100)
+  nama_mk String @db.VarChar(100)
+  dosen_id Int
+  tahun_ajaran_id  Int
+
+  tahunAjaran TahunAjaran @relation(fields: [tahun_ajaran_id], references: [id])
+  dosen Dosen @relation(fields: [dosen_id], references: [id])
+  kelas KelasMataKuliah[]
+  jadwal  Jadwal[]
+  jadwalPertemuan  JadwalPertemuan[]
+  @@map("mata_kuliahs")
+}
+
+model KelasMataKuliah {
+  id Int @id @default(autoincrement())
+  kelas_id Int
+  mata_kuliah_id Int
+
+  kelas Kelas @relation(fields: [kelas_id], references: [id])
+  mataKuliah  MataKuliah @relation(fields: [mata_kuliah_id], references: [id])
+  @@map("kelas_mata_kuliah")
+}
+
+model Jadwal {
+  id Int @id @default(autoincrement())
+  jam_mulai DateTime @db.DateTime
+  jam_akhir DateTime @db.DateTime
+  hari String @db.VarChar(100)
+  ruangan String @db.VarChar(100)
+  kelas_id Int
+  tahun_ajaran_id Int
+  mata_kuliah_id Int
+
+  tahunAjaran TahunAjaran @relation(fields: [tahun_ajaran_id], references: [id])
+  kelas Kelas @relation(fields: [kelas_id], references: [id])
+  mataKuliah MataKuliah @relation(fields: [mata_kuliah_id], references: [id])
+  @@map("jadwals")
+}
+
+model JadwalPertemuan {
+  id Int @id @default(autoincrement())
+  hari String @db.VarChar(100)
+  waktu_realisasi DateTime @db.DateTime
+  dosen String @db.VarChar(100)
+  ruangan String @db.VarChar(100)
+  qr_code String @db.VarChar(100)
+  topik_perkuliahan String @db.VarChar(100)
+  status Boolean
+  kelas_id Int
+  mata_kuliah_id Int
+
+  presensiMahasiswa PresensiMahasiswa[]
+  kelas Kelas @relation(fields: [kelas_id], references: [id])
+  mataKuliah MataKuliah @relation(fields: [mata_kuliah_id], references: [id])
+  @@map("jadwal_pertemuans")
+}
+
+
+model PresensiMahasiswa {
+  id Int @id @default(autoincrement())
+  jadwalPertemuan_id Int
+  mahasiswa_id Int
+  waktu_presensi DateTime @db.DateTime()
+  status_presensi StatusPresensi?
+
+  mahasiswa Mahasiswa @relation(fields: [mahasiswa_id], references: [id])
+  jadwalPertemuan JadwalPertemuan @relation(fields: [jadwalPertemuan_id], references: [id])
+  @@map("presensi_mahasiswas")
+}
+
+enum StatusPresensi {
+  Hadir
+  Sakit
+  Ijin
+  Alpa
+}
