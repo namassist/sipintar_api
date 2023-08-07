@@ -10,27 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id Int @id @default(autoincrement())
-  username String @db.VarChar(100)
-  password String @db.VarChar(100)
-  token String? @db.VarChar(100)
-  role_id Int @unique
-  
-  role Role @relation(fields: [role_id], references: [id])
-  mahasiswa Mahasiswa?
-  dosen Dosen?
-  @@map("users")
-}
-
-model Role {
-  id Int @id @default(autoincrement())
-  name String @db.VarChar(100)
-  
-  user User?
-  @@map("roles")
-}
-
 model TahunAjaran {
   id        Int      @id @default(autoincrement())
   nama      String
@@ -53,7 +32,7 @@ model Jurusan {
 model Prodi {
   id Int @id @default(autoincrement())
   nama_prodi String @db.VarChar(100)
-  kode_prodi String @db.VarChar(100)
+  kode_prodi String @db.VarChar(100) @unique
   jurusan_id Int
 
   jurusan Jurusan @relation(fields: [jurusan_id], references: [id])
@@ -76,10 +55,31 @@ model Kelas {
   @@map("kelas")
 }
 
+model User {
+  id Int @id @default(autoincrement())
+  username String @db.VarChar(100) @unique
+  password String @db.VarChar(100)
+  token String? @db.VarChar(255)
+  role Role
+  
+  mahasiswa Mahasiswa?
+  dosen Dosen?
+  admin Admin?
+  @@map("users")
+}
+
+model Admin {
+  id Int @id @default(autoincrement())
+  nama String @db.VarChar(100)
+  user_id Int @unique
+
+  user User @relation(fields: [user_id], references: [id])
+}
+
 model Mahasiswa {
   id Int @id @default(autoincrement())
   nama_mahasiswa String @db.VarChar(100)
-  nim String @db.VarChar(100)
+  nim String @unique @db.VarChar(100)
   user_id Int @unique
   kelas_id Int
 
@@ -93,8 +93,8 @@ model Dosen {
   id Int @id @default(autoincrement())
   nama_dosen String @db.VarChar(100)
   nip String @db.VarChar(100)
-  jurusan_id Int
   user_id Int @unique
+  jurusan_id Int
 
   user User @relation(fields: [user_id], references: [id])
   jurusan Jurusan @relation(fields: [jurusan_id], references: [id])
@@ -106,6 +106,7 @@ model MataKuliah {
   id Int @id @default(autoincrement())
   kode_mk String @db.VarChar(100)
   nama_mk String @db.VarChar(100)
+  total_jam Int @db.Int
   dosen_id Int
   tahun_ajaran_id  Int
 
@@ -147,6 +148,8 @@ model JadwalPertemuan {
   id Int @id @default(autoincrement())
   hari String @db.VarChar(100)
   waktu_realisasi DateTime @db.DateTime
+  jam_mulai String @db.VarChar(100)
+  jam_akhir String @db.VarChar(100)
   dosen String @db.VarChar(100)
   ruangan String @db.VarChar(100)
   qr_code String @db.VarChar(100)
@@ -160,7 +163,6 @@ model JadwalPertemuan {
   mataKuliah MataKuliah @relation(fields: [mata_kuliah_id], references: [id])
   @@map("jadwal_pertemuans")
 }
-
 
 model PresensiMahasiswa {
   id Int @id @default(autoincrement())
@@ -179,4 +181,10 @@ enum StatusPresensi {
   Sakit
   Ijin
   Alpa
+}
+
+enum Role {
+  Admin
+  Dosen
+  Mahasiswa
 }

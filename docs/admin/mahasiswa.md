@@ -48,9 +48,10 @@ Response Body Success :
 
 Endpoint : POST /api/Mahasiswa
 
+<!--
 Headers :
 
-- Authorization : token
+- Authorization : token -->
 
 Request Body :
 
@@ -72,7 +73,6 @@ Response Body Success :
     "nama_mahasiswa": "Rifka Anggun Puspitaningrum",
     "nim": "33420021",
     "kelas": "IK-3A",
-    "tahun_ajaran": "Gasal 2022/2023",
     "password": "hash password"
   }
 }

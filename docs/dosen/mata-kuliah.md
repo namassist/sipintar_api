@@ -26,7 +26,9 @@ Response Body Success :
           "nama_mk": "Pemrograman Basis Data",
           "kelas": "IK-3A",
           "ruangan": "SB II/1",
-          "waktu_realisasi": "jamber",
+          "waktu_realisasi": "format tanggal",
+          "jam_mulai": "jam berapa",
+          "jam_akhir": "jam berapa",
           "topik_perkuliahan": "topik anu",
           "qr_code": "base64:xxx",
           "status": false
@@ -46,7 +48,9 @@ Response Body Success :
           "nama_mk": "Pemrograman Basis Data",
           "kelas": "IK-3A",
           "ruangan": "SB II/1",
-          "waktu_realisasi": "jamber",
+          "waktu_realisasi": "format tanggal",
+          "jam_mulai": "jam berapa",
+          "jam_akhir": "jam berapa",
           "topik_perkuliahan": "topik anu",
           "qr_code": "base64:xxx",
           "status": false

@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { jurusans, prodis, tahunAjarans, kelas, roles } from "./data.js";
+import { jurusans, prodis, tahunAjarans, kelas } from "./data.js";
 
 const prisma = new PrismaClient();
 
@@ -18,9 +18,6 @@ const load = async () => {
     await prisma.jurusan.deleteMany();
     console.log("Deleted records in jurusans table");
 
-    await prisma.role.deleteMany();
-    console.log("Deleted records in roles table");
-
     // truncate
     await prisma.$queryRaw`ALTER TABLE kelas AUTO_INCREMENT = 1`;
     console.log("reset kelas auto increment to 1");
@@ -33,9 +30,6 @@ const load = async () => {
 
     await prisma.$queryRaw`ALTER TABLE jurusans AUTO_INCREMENT = 1`;
     console.log("reset jurusans auto increment to 1");
-
-    await prisma.$queryRaw`ALTER TABLE roles AUTO_INCREMENT = 1`;
-    console.log("reset roles auto increment to 1");
 
     // create
     await prisma.jurusan.createMany({
@@ -57,11 +51,6 @@ const load = async () => {
       data: kelas,
     });
     console.log("Added kelas data");
-
-    await prisma.role.createMany({
-      data: roles,
-    });
-    console.log("Added roles data");
   } catch (e) {
     console.error(e);
     process.exit(1);

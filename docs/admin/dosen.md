@@ -44,10 +44,6 @@ Response Body Success :
 
 Endpoint : POST /api/dosen
 
-Headers :
-
-- Authorization : token
-
 Request Body :
 
 ```json

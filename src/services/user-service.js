@@ -3,8 +3,8 @@ import { loginUserValidation } from "../validations/user-validation.js";
 import { prismaClient } from "../apps/database.js";
 import { ResponseError } from "../errors/response-error.js";
 import bcrypt from "bcrypt";
-import { sign } from "jsonwebtoken";
-// import { v4 as uuid } from "uuid";
+import pkg from "jsonwebtoken";
+const { sign } = pkg;
 
 const secretKey = "rifkasyantik";
 
@@ -19,14 +19,7 @@ const login = async (request) => {
       id: true,
       username: true,
       password: true,
-      role_id: true,
-    },
-    include: {
-      role: {
-        select: {
-          name: true,
-        },
-      },
+      role: true,
     },
   });
 
@@ -45,11 +38,10 @@ const login = async (request) => {
   const payload = {
     id: user.id,
     username: user.username,
-    role: user.role.name,
+    role: user.role,
   };
 
   const token = sign(payload, secretKey);
-  //   const token = uuid().toString();
 
   return prismaClient.user.update({
     data: {
