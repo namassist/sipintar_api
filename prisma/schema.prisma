@@ -14,7 +14,6 @@ model TahunAjaran {
   id        Int      @id @default(autoincrement())
   nama      String
 
-  mataKuliah MataKuliah[]
   kelas Kelas[]
   jadwal Jadwal[]
   @@map("tahun_ajarans")
@@ -40,21 +39,6 @@ model Prodi {
   @@map("prodis")
 }
 
-model Kelas {
-  id Int @id @default(autoincrement())
-  nama_kelas String @db.VarChar(100)
-  tahun_ajaran_id Int @db.Int()
-  prodi_id Int
-
-  prodi Prodi @relation(fields: [prodi_id], references: [id])
-  tahunAjaran TahunAjaran @relation(fields: [tahun_ajaran_id], references: [id])
-  mataKuliah KelasMataKuliah[]
-  mahasiswa Mahasiswa[]
-  jadwal  Jadwal[]
-  jadwalPertemuan  JadwalPertemuan[]
-  @@map("kelas")
-}
-
 model User {
   id Int @id @default(autoincrement())
   username String @db.VarChar(100) @unique
@@ -74,6 +58,7 @@ model Admin {
   user_id Int @unique
 
   user User @relation(fields: [user_id], references: [id])
+  @@map("admins")
 }
 
 model Mahasiswa {
@@ -94,12 +79,29 @@ model Dosen {
   nama_dosen String @db.VarChar(100)
   nip String @db.VarChar(100)
   user_id Int @unique
-  jurusan_id Int
+  jurusan_id Int @unique
 
   user User @relation(fields: [user_id], references: [id])
   jurusan Jurusan @relation(fields: [jurusan_id], references: [id])
+  jadwal Jadwal[]
   mataKuliah MataKuliah[]
+  jadwalPertemuan JadwalPertemuan[]
   @@map("dosens")
+}
+
+model Kelas {
+  id Int @id @default(autoincrement())
+  nama_kelas String @db.VarChar(100)
+  tahun_ajaran_id Int @db.Int()
+  prodi_id Int
+
+  prodi Prodi @relation(fields: [prodi_id], references: [id])
+  tahunAjaran TahunAjaran @relation(fields: [tahun_ajaran_id], references: [id])
+  mahasiswa Mahasiswa[]
+  jadwal  Jadwal[]
+  jadwalPertemuan JadwalPertemuan[]
+  kelasMataKuliah KelasMataKuliah[]
+  @@map("kelas")
 }
 
 model MataKuliah {
@@ -108,59 +110,62 @@ model MataKuliah {
   nama_mk String @db.VarChar(100)
   total_jam Int @db.Int
   dosen_id Int
-  tahun_ajaran_id  Int
 
-  tahunAjaran TahunAjaran @relation(fields: [tahun_ajaran_id], references: [id])
   dosen Dosen @relation(fields: [dosen_id], references: [id])
-  kelas KelasMataKuliah[]
   jadwal  Jadwal[]
-  jadwalPertemuan  JadwalPertemuan[]
+  jadwalPertemuan JadwalPertemuan[]
+  kelasMataKuliah KelasMataKuliah[]
   @@map("mata_kuliahs")
 }
 
 model KelasMataKuliah {
-  id Int @id @default(autoincrement())
   kelas_id Int
   mata_kuliah_id Int
 
   kelas Kelas @relation(fields: [kelas_id], references: [id])
-  mataKuliah  MataKuliah @relation(fields: [mata_kuliah_id], references: [id])
-  @@map("kelas_mata_kuliah")
+  mataKuliah MataKuliah @relation(fields: [mata_kuliah_id], references: [id])
+
+  @@id([kelas_id, mata_kuliah_id])
+  @@map("kelas_mata_kuliahs")
+
 }
 
 model Jadwal {
   id Int @id @default(autoincrement())
-  jam_mulai DateTime @db.DateTime
-  jam_akhir DateTime @db.DateTime
   hari String @db.VarChar(100)
+  jam_mulai String @db.VarChar(100)
+  jam_akhir String @db.VarChar(100)
   ruangan String @db.VarChar(100)
   kelas_id Int
   tahun_ajaran_id Int
   mata_kuliah_id Int
+  dosen_id Int
 
+  dosen Dosen @relation(fields: [dosen_id], references: [id])
+  mataKuliah MataKuliah @relation(fields: [mata_kuliah_id], references: [id])
   tahunAjaran TahunAjaran @relation(fields: [tahun_ajaran_id], references: [id])
   kelas Kelas @relation(fields: [kelas_id], references: [id])
-  mataKuliah MataKuliah @relation(fields: [mata_kuliah_id], references: [id])
   @@map("jadwals")
 }
 
 model JadwalPertemuan {
   id Int @id @default(autoincrement())
   hari String @db.VarChar(100)
-  waktu_realisasi DateTime @db.DateTime
   jam_mulai String @db.VarChar(100)
   jam_akhir String @db.VarChar(100)
-  dosen String @db.VarChar(100)
+  waktu_realisasi DateTime @db.DateTime
   ruangan String @db.VarChar(100)
   qr_code String @db.VarChar(100)
   topik_perkuliahan String @db.VarChar(100)
   status Boolean
   kelas_id Int
   mata_kuliah_id Int
+  dosen_id Int
 
   presensiMahasiswa PresensiMahasiswa[]
-  kelas Kelas @relation(fields: [kelas_id], references: [id])
+  dosen Dosen @relation(fields: [dosen_id], references: [id])
   mataKuliah MataKuliah @relation(fields: [mata_kuliah_id], references: [id])
+  kelas Kelas @relation(fields: [kelas_id], references: [id])
   @@map("jadwal_pertemuans")
 }
 

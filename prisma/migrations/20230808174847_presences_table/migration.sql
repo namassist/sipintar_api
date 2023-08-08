@@ -26,16 +26,6 @@ CREATE TABLE `prodis` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `kelas` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `nama_kelas` VARCHAR(100) NOT NULL,
-    `tahun_ajaran_id` INTEGER NOT NULL,
-    `prodi_id` INTEGER NOT NULL,
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
 CREATE TABLE `users` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `username` VARCHAR(100) NOT NULL,
@@ -48,12 +38,12 @@ CREATE TABLE `users` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Admin` (
+CREATE TABLE `admins` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `nama` VARCHAR(100) NOT NULL,
     `user_id` INTEGER NOT NULL,
 
-    UNIQUE INDEX `Admin_user_id_key`(`user_id`),
+    UNIQUE INDEX `admins_user_id_key`(`user_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -79,6 +69,17 @@ CREATE TABLE `dosens` (
     `jurusan_id` INTEGER NOT NULL,
 
     UNIQUE INDEX `dosens_user_id_key`(`user_id`),
+    UNIQUE INDEX `dosens_jurusan_id_key`(`jurusan_id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `kelas` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `nama_kelas` VARCHAR(100) NOT NULL,
+    `tahun_ajaran_id` INTEGER NOT NULL,
+    `prodi_id` INTEGER NOT NULL,
+
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -89,30 +90,29 @@ CREATE TABLE `mata_kuliahs` (
     `nama_mk` VARCHAR(100) NOT NULL,
     `total_jam` INTEGER NOT NULL,
     `dosen_id` INTEGER NOT NULL,
-    `tahun_ajaran_id` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `kelas_mata_kuliah` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+CREATE TABLE `kelas_mata_kuliahs` (
     `kelas_id` INTEGER NOT NULL,
     `mata_kuliah_id` INTEGER NOT NULL,
 
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`kelas_id`, `mata_kuliah_id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `jadwals` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `hari` VARCHAR(100) NOT NULL,
     `jam_mulai` DATETIME NOT NULL,
     `jam_akhir` DATETIME NOT NULL,
-    `hari` VARCHAR(100) NOT NULL,
     `ruangan` VARCHAR(100) NOT NULL,
     `kelas_id` INTEGER NOT NULL,
     `tahun_ajaran_id` INTEGER NOT NULL,
     `mata_kuliah_id` INTEGER NOT NULL,
+    `dosen_id` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -121,16 +121,16 @@ CREATE TABLE `jadwals` (
 CREATE TABLE `jadwal_pertemuans` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `hari` VARCHAR(100) NOT NULL,
-    `waktu_realisasi` DATETIME NOT NULL,
     `jam_mulai` VARCHAR(100) NOT NULL,
     `jam_akhir` VARCHAR(100) NOT NULL,
-    `dosen` VARCHAR(100) NOT NULL,
+    `waktu_realisasi` DATETIME NOT NULL,
     `ruangan` VARCHAR(100) NOT NULL,
     `qr_code` VARCHAR(100) NOT NULL,
     `topik_perkuliahan` VARCHAR(100) NOT NULL,
     `status` BOOLEAN NOT NULL,
     `kelas_id` INTEGER NOT NULL,
     `mata_kuliah_id` INTEGER NOT NULL,
+    `dosen_id` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -150,13 +150,7 @@ CREATE TABLE `presensi_mahasiswas` (
 ALTER TABLE `prodis` ADD CONSTRAINT `prodis_jurusan_id_fkey` FOREIGN KEY (`jurusan_id`) REFERENCES `jurusans`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `kelas` ADD CONSTRAINT `kelas_prodi_id_fkey` FOREIGN KEY (`prodi_id`) REFERENCES `prodis`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `kelas` ADD CONSTRAINT `kelas_tahun_ajaran_id_fkey` FOREIGN KEY (`tahun_ajaran_id`) REFERENCES `tahun_ajarans`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Admin` ADD CONSTRAINT `Admin_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `admins` ADD CONSTRAINT `admins_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `mahasiswas` ADD CONSTRAINT `mahasiswas_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -171,16 +165,25 @@ ALTER TABLE `dosens` ADD CONSTRAINT `dosens_user_id_fkey` FOREIGN KEY (`user_id`
 ALTER TABLE `dosens` ADD CONSTRAINT `dosens_jurusan_id_fkey` FOREIGN KEY (`jurusan_id`) REFERENCES `jurusans`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `mata_kuliahs` ADD CONSTRAINT `mata_kuliahs_tahun_ajaran_id_fkey` FOREIGN KEY (`tahun_ajaran_id`) REFERENCES `tahun_ajarans`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `kelas` ADD CONSTRAINT `kelas_prodi_id_fkey` FOREIGN KEY (`prodi_id`) REFERENCES `prodis`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `kelas` ADD CONSTRAINT `kelas_tahun_ajaran_id_fkey` FOREIGN KEY (`tahun_ajaran_id`) REFERENCES `tahun_ajarans`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `mata_kuliahs` ADD CONSTRAINT `mata_kuliahs_dosen_id_fkey` FOREIGN KEY (`dosen_id`) REFERENCES `dosens`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `kelas_mata_kuliah` ADD CONSTRAINT `kelas_mata_kuliah_kelas_id_fkey` FOREIGN KEY (`kelas_id`) REFERENCES `kelas`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `kelas_mata_kuliahs` ADD CONSTRAINT `kelas_mata_kuliahs_kelas_id_fkey` FOREIGN KEY (`kelas_id`) REFERENCES `kelas`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `kelas_mata_kuliah` ADD CONSTRAINT `kelas_mata_kuliah_mata_kuliah_id_fkey` FOREIGN KEY (`mata_kuliah_id`) REFERENCES `mata_kuliahs`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `kelas_mata_kuliahs` ADD CONSTRAINT `kelas_mata_kuliahs_mata_kuliah_id_fkey` FOREIGN KEY (`mata_kuliah_id`) REFERENCES `mata_kuliahs`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `jadwals` ADD CONSTRAINT `jadwals_dosen_id_fkey` FOREIGN KEY (`dosen_id`) REFERENCES `dosens`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `jadwals` ADD CONSTRAINT `jadwals_mata_kuliah_id_fkey` FOREIGN KEY (`mata_kuliah_id`) REFERENCES `mata_kuliahs`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `jadwals` ADD CONSTRAINT `jadwals_tahun_ajaran_id_fkey` FOREIGN KEY (`tahun_ajaran_id`) REFERENCES `tahun_ajarans`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -189,13 +192,13 @@ ALTER TABLE `jadwals` ADD CONSTRAINT `jadwals_tahun_ajaran_id_fkey` FOREIGN KEY 
 ALTER TABLE `jadwals` ADD CONSTRAINT `jadwals_kelas_id_fkey` FOREIGN KEY (`kelas_id`) REFERENCES `kelas`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `jadwals` ADD CONSTRAINT `jadwals_mata_kuliah_id_fkey` FOREIGN KEY (`mata_kuliah_id`) REFERENCES `mata_kuliahs`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `jadwal_pertemuans` ADD CONSTRAINT `jadwal_pertemuans_kelas_id_fkey` FOREIGN KEY (`kelas_id`) REFERENCES `kelas`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `jadwal_pertemuans` ADD CONSTRAINT `jadwal_pertemuans_dosen_id_fkey` FOREIGN KEY (`dosen_id`) REFERENCES `dosens`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `jadwal_pertemuans` ADD CONSTRAINT `jadwal_pertemuans_mata_kuliah_id_fkey` FOREIGN KEY (`mata_kuliah_id`) REFERENCES `mata_kuliahs`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `jadwal_pertemuans` ADD CONSTRAINT `jadwal_pertemuans_kelas_id_fkey` FOREIGN KEY (`kelas_id`) REFERENCES `kelas`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `presensi_mahasiswas` ADD CONSTRAINT `presensi_mahasiswas_mahasiswa_id_fkey` FOREIGN KEY (`mahasiswa_id`) REFERENCES `mahasiswas`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

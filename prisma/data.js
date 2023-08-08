@@ -1,3 +1,14 @@
+import bcrypt from "bcrypt";
+
+async function hashedPassword(password) {
+  try {
+    const hash = await bcrypt.hash(password, 10);
+    return hash;
+  } catch (error) {
+    console.error("Terjadi kesalahan:", error);
+  }
+}
+
 export const jurusans = [
   {
     nama_jurusan: "Teknik Elektro",
@@ -111,12 +122,82 @@ export const kelas = [
   },
 ];
 
-export const roles = [
+export const users = [
   {
-    name: "admin",
+    username: "33420021",
+    password: await hashedPassword("secreteuy"),
+    role: "Mahasiswa",
   },
   {
-    name: "dosen",
+    username: "33420022",
+    password: await hashedPassword("secretgacor"),
+    role: "Mahasiswa",
   },
-  { name: "mahasiswa" },
+  {
+    username: "12345123",
+    password: await hashedPassword("dosengacor"),
+    role: "Dosen",
+  },
+  {
+    username: "admin",
+    password: await hashedPassword("admingacor"),
+    role: "Admin",
+  },
+];
+
+export const mahasiswas = [
+  {
+    nama_mahasiswa: "Rifka Anggun P",
+    nim: "33420021",
+    user_id: 1,
+    kelas_id: 1,
+  },
+  {
+    nama_mahasiswa: "Talitha Padma",
+    nim: "33420022",
+    user_id: 2,
+    kelas_id: 2,
+  },
+];
+
+export const dosens = [
+  {
+    nama_dosen: "Dosen anu",
+    nip: "12345123",
+    user_id: 3,
+    jurusan_id: 1,
+  },
+];
+
+export const admins = [
+  {
+    nama: "admin",
+    user_id: 1,
+  },
+];
+
+export const mataKuliahs = [
+  {
+    nama_mk: "Jaringan",
+    kode_mk: "PJA",
+    total_jam: 5,
+    dosen_id: 1,
+  },
+  {
+    nama_mk: "Website",
+    kode_mk: "PW",
+    total_jam: 5,
+    dosen_id: 1,
+  },
+];
+
+export const kelasMataKuliahs = [
+  {
+    kelas_id: 2,
+    mata_kuliah_id: 2,
+  },
+  {
+    kelas_id: 1,
+    mata_kuliah_id: 1,
+  },
 ];

@@ -160,13 +160,39 @@ const search = async (request) => {
     });
   }
 
+  if (request.jurusan_id) {
+    filters.push({
+      OR: [
+        {
+          jurusan_id: {
+            equals: parseInt(request.jurusan_id),
+          },
+        },
+      ],
+    });
+  }
+
   const prodi = await prismaClient.prodi.findMany({
     where: {
       AND: filters,
     },
     take: request.size,
     skip: skip,
+    select: {
+      id: true,
+      nama_prodi: true,
+      kode_prodi: true,
+      jurusan: {
+        select: {
+          nama_jurusan: true,
+        },
+      },
+    },
   });
+
+  if (prodi.length === 0) {
+    throw new ResponseError(404, "Program Studi is not found");
+  }
 
   const totalItems = await prismaClient.prodi.count({
     where: {
@@ -174,8 +200,15 @@ const search = async (request) => {
     },
   });
 
+  const formattedProdi = prodi.map((item) => ({
+    id: item.id,
+    nama_prodi: item.nama_prodi,
+    kode_prodi: item.kode_prodi,
+    jurusan: item.jurusan.nama_jurusan,
+  }));
+
   return {
-    data: prodi,
+    data: formattedProdi,
     paging: {
       page: request.page,
       total_item: totalItems,

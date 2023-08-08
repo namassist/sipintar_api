@@ -1,8 +1,8 @@
-import prodiService from "../services/prodi-service.js";
+import tahunAjaranService from "../services/tahunAjaran-service.js";
 
 const create = async (req, res, next) => {
   try {
-    const result = await prodiService.create(req.body);
+    const result = await tahunAjaranService.create(req.body);
     res.status(200).json({
       data: result,
     });
@@ -13,8 +13,8 @@ const create = async (req, res, next) => {
 
 const get = async (req, res, next) => {
   try {
-    const prodiId = req.params.prodiId;
-    const result = await prodiService.get(prodiId);
+    const tahunAjaranId = req.params.tahunAjaranId;
+    const result = await tahunAjaranService.get(tahunAjaranId);
     res.status(200).json({
       data: result,
     });
@@ -25,11 +25,11 @@ const get = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   try {
-    const prodiId = req.params.prodiId;
+    const tahunAjaranId = req.params.tahunAjaranId;
     const request = req.body;
-    request.id = prodiId;
+    request.id = tahunAjaranId;
 
-    const result = await prodiService.update(request);
+    const result = await tahunAjaranService.update(request);
     res.status(200).json({
       data: result,
     });
@@ -40,9 +40,9 @@ const update = async (req, res, next) => {
 
 const remove = async (req, res, next) => {
   try {
-    const prodiId = req.params.prodiId;
+    const tahunAjaranId = req.params.tahunAjaranId;
 
-    await prodiService.remove(prodiId);
+    await tahunAjaranService.remove(tahunAjaranId);
     res.status(200).json({
       data: "OK",
     });
@@ -55,12 +55,11 @@ const search = async (req, res, next) => {
   try {
     const request = {
       nama: req.query.nama,
-      jurusan_id: req.query.jurusan_id,
       page: req.query.page,
       size: req.query.size,
     };
 
-    const result = await prodiService.search(request);
+    const result = await tahunAjaranService.search(request);
     res.status(200).json({
       data: result.data,
       paging: result.paging,

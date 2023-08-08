@@ -1,5 +1,8 @@
 import { validate } from "../validations/validation.js";
-import { loginUserValidation } from "../validations/user-validation.js";
+import {
+  loginUserValidation,
+  getUserValidation,
+} from "../validations/user-validation.js";
 import { prismaClient } from "../apps/database.js";
 import { ResponseError } from "../errors/response-error.js";
 import bcrypt from "bcrypt";
@@ -56,6 +59,104 @@ const login = async (request) => {
   });
 };
 
+const get = async (username) => {
+  username = validate(getUserValidation, username);
+
+  const user = await prismaClient.user.findUnique({
+    where: {
+      username: username,
+    },
+    select: {
+      id: true,
+      username: true,
+      role: true,
+    },
+  });
+
+  if (!user) {
+    throw new ResponseError(404, "user is not found");
+  }
+
+  if (user.role === "Dosen") {
+    const dosen = await prismaClient.dosen.findUnique({
+      where: {
+        nip: user.username,
+        user_id: user.id,
+      },
+      select: {
+        id: true,
+        username: true,
+        nip: true,
+        jurusan: true,
+      },
+    });
+
+    return dosen;
+  }
+
+  if (user.role === "Mahasiswa") {
+    const mahasiswa = await prismaClient.mahasiswa.findUnique({
+      where: {
+        nim: user.username,
+        user_id: user.id,
+      },
+      select: {
+        id: true,
+        nama_mahasiswa: true,
+        nim: true,
+        kelas: {
+          select: {
+            nama_kelas: true,
+            prodi: {
+              select: {
+                nama_prodi: true,
+                jurusan: {
+                  select: {
+                    nama_jurusan: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return mahasiswa;
+  }
+
+  return user;
+};
+
+const logout = async (username) => {
+  username = validate(getUserValidation, username);
+
+  const user = await prismaClient.user.findUnique({
+    where: {
+      username: username,
+    },
+  });
+
+  if (!user) {
+    throw new ResponseError(404, "user is not found");
+  }
+
+  return prismaClient.user.update({
+    where: {
+      username: username,
+    },
+    data: {
+      token: null,
+    },
+    select: {
+      username: true,
+      role: true,
+    },
+  });
+};
+
 export default {
   login,
+  logout,
+  get,
 };
