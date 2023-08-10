@@ -7,6 +7,40 @@ import {
   searchMataKuliahValidation,
   updateMataKuliahValidation,
 } from "../validations/mataKuliah-validation.js";
+import { getDosenValidation } from "../validations/dosen-validation.js";
+import { getMahasiswaValidation } from "../validations/mahasiswa-validation.js";
+
+const checkDosenMustExists = async (dosenId) => {
+  dosenId = validate(getDosenValidation, dosenId);
+
+  const totalDosentInDatabase = await prismaClient.dosen.count({
+    where: {
+      id: dosenId,
+    },
+  });
+
+  if (totalDosentInDatabase !== 1) {
+    throw new ResponseError(404, "dosen is not found");
+  }
+
+  return dosenId;
+};
+
+const checkMahasiswaMustExists = async (mahasiswaId) => {
+  mahasiswaId = validate(getMahasiswaValidation, mahasiswaId);
+
+  const totalMahasiswaInDatabase = await prismaClient.mahasiswa.count({
+    where: {
+      id: mahasiswaId,
+    },
+  });
+
+  if (totalMahasiswaInDatabase !== 1) {
+    throw new ResponseError(404, "mahasiswa is not found");
+  }
+
+  return mahasiswaId;
+};
 
 const create = async (request) => {
   const mataKuliah = validate(createMataKuliahValidation, request);
@@ -27,18 +61,12 @@ const create = async (request) => {
       nama_mk: mataKuliah.nama_mk,
       kode_mk: mataKuliah.kode_mk,
       total_jam: mataKuliah.total_jam,
-      dosen_id: mataKuliah.dosen_id,
     },
     select: {
       id: true,
       nama_mk: true,
       kode_mk: true,
       total_jam: true,
-      dosen: {
-        select: {
-          nama_dosen: true,
-        },
-      },
     },
   });
 
@@ -47,7 +75,6 @@ const create = async (request) => {
     nama_mk: createdMataKuliah.nama_mk,
     kode_mk: createdMataKuliah.kode_mk,
     total_jam: createdMataKuliah.total_jam,
-    dosen: createdMataKuliah.dosen.nama_dosen,
   };
 };
 
@@ -63,11 +90,6 @@ const get = async (mataKuliahId) => {
       nama_mk: true,
       kode_mk: true,
       total_jam: true,
-      dosen: {
-        select: {
-          nama_dosen: true,
-        },
-      },
     },
   });
 
@@ -80,7 +102,6 @@ const get = async (mataKuliahId) => {
     nama_mk: mataKuliah.nama_mk,
     kode_mk: mataKuliah.kode_mk,
     total_jam: mataKuliah.total_jam,
-    dosen: mataKuliah.dosen.nama_dosen,
   };
 };
 
@@ -105,18 +126,12 @@ const update = async (request) => {
       nama_mk: mataKuliah.nama_mk,
       kode_mk: mataKuliah.kode_mk,
       total_jam: mataKuliah.total_jam,
-      dosen_id: mataKuliah.dosen_id,
     },
     select: {
       id: true,
       nama_mk: true,
       kode_mk: true,
       total_jam: true,
-      dosen: {
-        select: {
-          nama_dosen: true,
-        },
-      },
     },
   });
 
@@ -125,7 +140,6 @@ const update = async (request) => {
     nama_mk: updatedMataKuliah.nama_mk,
     kode_mk: updatedMataKuliah.kode_mk,
     total_jam: updatedMataKuliah.total_jam,
-    dosen: updatedMataKuliah.dosen.nama_dosen,
   };
 };
 
@@ -180,18 +194,6 @@ const search = async (request) => {
     });
   }
 
-  if (request.dosen_id) {
-    filters.push({
-      OR: [
-        {
-          dosen_id: {
-            equals: parseInt(request.dosen_id),
-          },
-        },
-      ],
-    });
-  }
-
   const mataKuliah = await prismaClient.mataKuliah.findMany({
     where: {
       AND: filters,
@@ -203,11 +205,6 @@ const search = async (request) => {
       nama_mk: true,
       kode_mk: true,
       total_jam: true,
-      dosen: {
-        select: {
-          nama_dosen: true,
-        },
-      },
     },
   });
 
@@ -221,16 +218,8 @@ const search = async (request) => {
     },
   });
 
-  const formattedMataKuliah = mataKuliah.map((item) => ({
-    id: item.id,
-    nama_mk: item.nama_mk,
-    kode_mk: item.kode_mk,
-    total_jam: item.total_jam,
-    dosen: item.dosen.nama_dosen,
-  }));
-
   return {
-    data: formattedMataKuliah,
+    data: mataKuliah,
     paging: {
       page: request.page,
       total_item: totalItems,
@@ -239,10 +228,113 @@ const search = async (request) => {
   };
 };
 
+const listDosen = async (dosenId) => {
+  dosenId = await checkDosenMustExists(dosenId);
+
+  const kelasMataKuliahDosen = await prismaClient.kelasMataKuliahDosen.findMany(
+    {
+      where: {
+        dosen_id: dosenId,
+      },
+      include: {
+        mataKuliah: {
+          select: {
+            id: true,
+            nama_mk: true,
+            kode_mk: true,
+            total_jam: true,
+          },
+        },
+        kelas: {
+          select: {
+            id: true,
+            nama_kelas: true,
+          },
+        },
+      },
+    }
+  );
+
+  const results = kelasMataKuliahDosen.map((item) => ({
+    nama_mk: item.mataKuliah.nama_mk,
+    kode_mk: item.mataKuliah.kode_mk,
+    total_jam: item.mataKuliah.total_jam,
+    kelas: item.kelas.nama_kelas,
+    key: {
+      dosen_id: item.dosen_id,
+      mata_kuliah_id: item.mataKuliah.id,
+      kelas_id: item.kelas.id,
+    },
+  }));
+
+  return results;
+};
+
+const listMahasiswa = async (mahasiswaId) => {
+  mahasiswaId = await checkMahasiswaMustExists(mahasiswaId);
+
+  const kelasMahasiswa = await prismaClient.mahasiswa.findUnique({
+    where: {
+      id: mahasiswaId,
+    },
+    select: {
+      nama_mahasiswa: true,
+      kelas_id: true,
+    },
+  });
+
+  const kelasMataKuliahDosen = await prismaClient.kelasMataKuliahDosen.findMany(
+    {
+      where: {
+        kelas_id: kelasMahasiswa.kelas_id,
+      },
+      include: {
+        mataKuliah: {
+          select: {
+            id: true,
+            nama_mk: true,
+            kode_mk: true,
+            total_jam: true,
+          },
+        },
+        kelas: {
+          select: {
+            id: true,
+            nama_kelas: true,
+          },
+        },
+        dosen: {
+          select: {
+            id: true,
+            nama_dosen: true,
+          },
+        },
+      },
+    }
+  );
+
+  const results = kelasMataKuliahDosen.map((item) => ({
+    nama_mk: item.mataKuliah.nama_mk,
+    kode_mk: item.mataKuliah.kode_mk,
+    total_jam: item.mataKuliah.total_jam,
+    kelas: item.kelas.nama_kelas,
+    dosen: item.dosen.nama_dosen,
+    key: {
+      dosen_id: item.dosen_id,
+      mata_kuliah_id: item.mataKuliah.id,
+      kelas_id: item.kelas.id,
+    },
+  }));
+
+  return results;
+};
+
 export default {
   get,
   create,
   update,
   remove,
   search,
+  listDosen,
+  listMahasiswa,
 };

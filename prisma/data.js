@@ -139,6 +139,11 @@ export const users = [
     role: "Dosen",
   },
   {
+    username: "12345678",
+    password: await hashedPassword("dosen2gacor"),
+    role: "Dosen",
+  },
+  {
     username: "admin",
     password: await hashedPassword("admingacor"),
     role: "Admin",
@@ -167,12 +172,18 @@ export const dosens = [
     user_id: 3,
     jurusan_id: 1,
   },
+  {
+    nama_dosen: "Dosen itu",
+    nip: "12345678",
+    user_id: 4,
+    jurusan_id: 1,
+  },
 ];
 
 export const admins = [
   {
     nama: "admin",
-    user_id: 1,
+    user_id: 5,
   },
 ];
 
@@ -181,23 +192,33 @@ export const mataKuliahs = [
     nama_mk: "Jaringan",
     kode_mk: "PJA",
     total_jam: 5,
-    dosen_id: 1,
   },
   {
     nama_mk: "Website",
     kode_mk: "PW",
     total_jam: 5,
-    dosen_id: 1,
   },
 ];
 
-export const kelasMataKuliahs = [
-  {
-    kelas_id: 2,
-    mata_kuliah_id: 2,
-  },
+export const kelasMataKuliahDosens = [
   {
     kelas_id: 1,
     mata_kuliah_id: 1,
+    dosen_id: 1,
+  },
+  {
+    kelas_id: 1,
+    mata_kuliah_id: 2,
+    dosen_id: 2,
+  },
+  {
+    kelas_id: 2,
+    mata_kuliah_id: 1,
+    dosen_id: 1,
+  },
+  {
+    kelas_id: 2,
+    mata_kuliah_id: 2,
+    dosen_id: 1,
   },
 ];

@@ -23,9 +23,16 @@ const searchDosenValidation = Joi.object({
   nama: Joi.string().allow("").optional(),
 });
 
+const searchJadwalDosenValidation = Joi.object({
+  page: Joi.number().min(1).positive().default(1),
+  size: Joi.number().min(1).positive().max(100).default(10),
+  hari: Joi.string().allow("").optional(),
+});
+
 export {
   createDosenValidation,
   updateDosenValidation,
   getDosenValidation,
   searchDosenValidation,
+  searchJadwalDosenValidation,
 };

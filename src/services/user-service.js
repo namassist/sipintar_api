@@ -122,7 +122,16 @@ const get = async (username) => {
       },
     });
 
-    return mahasiswa;
+    const results = {
+      id: mahasiswa.id,
+      nama_mahasiswa: mahasiswa.nama_mahasiswa,
+      nim: mahasiswa.nim,
+      kelas: mahasiswa.kelas.nama_kelas,
+      prodi: mahasiswa.kelas.prodi.nama_prodi,
+      jurusan: mahasiswa.kelas.prodi.jurusan.nama_jurusan,
+    };
+
+    return results;
   }
 
   return user;

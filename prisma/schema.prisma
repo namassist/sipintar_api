@@ -79,13 +79,11 @@ model Dosen {
   nama_dosen String @db.VarChar(100)
   nip String @db.VarChar(100)
   user_id Int @unique
-  jurusan_id Int @unique
+  jurusan_id Int
 
   user User @relation(fields: [user_id], references: [id])
   jurusan Jurusan @relation(fields: [jurusan_id], references: [id])
-  jadwal Jadwal[]
-  mataKuliah MataKuliah[]
-  jadwalPertemuan JadwalPertemuan[]
+  kelasMataKuliahDosen KelasMataKuliahDosen[]
   @@map("dosens")
 }
 
@@ -98,9 +96,7 @@ model Kelas {
   prodi Prodi @relation(fields: [prodi_id], references: [id])
   tahunAjaran TahunAjaran @relation(fields: [tahun_ajaran_id], references: [id])
   mahasiswa Mahasiswa[]
-  jadwal  Jadwal[]
-  jadwalPertemuan JadwalPertemuan[]
-  kelasMataKuliah KelasMataKuliah[]
+  kelasMataKuliahDosen KelasMataKuliahDosen[]
   @@map("kelas")
 }
 
@@ -109,25 +105,24 @@ model MataKuliah {
   kode_mk String @db.VarChar(100)
   nama_mk String @db.VarChar(100)
   total_jam Int @db.Int
-  dosen_id Int
 
-  dosen Dosen @relation(fields: [dosen_id], references: [id])
-  jadwal  Jadwal[]
-  jadwalPertemuan JadwalPertemuan[]
-  kelasMataKuliah KelasMataKuliah[]
+  kelasMataKuliahDosen KelasMataKuliahDosen[]
   @@map("mata_kuliahs")
 }
 
-model KelasMataKuliah {
+model KelasMataKuliahDosen {
+  kelas_mk_dosen_id Int @id @default(autoincrement())
   kelas_id Int
   mata_kuliah_id Int
+  dosen_id Int
 
   kelas Kelas @relation(fields: [kelas_id], references: [id])
   mataKuliah MataKuliah @relation(fields: [mata_kuliah_id], references: [id])
+  dosen Dosen @relation(fields: [dosen_id], references: [id])
+  jadwal Jadwal[]
+  jadwalPertemuan JadwalPertemuan[]
 
-  @@id([kelas_id, mata_kuliah_id])
-  @@map("kelas_mata_kuliahs")
-
+  @@map("kelas_mata_kuliah_dosens")
 }
 
 model Jadwal {
@@ -136,15 +131,11 @@ model Jadwal {
   jam_mulai String @db.VarChar(100)
   jam_akhir String @db.VarChar(100)
   ruangan String @db.VarChar(100)
-  kelas_id Int
+  kelas_mk_dosen_id Int
   tahun_ajaran_id Int
-  mata_kuliah_id Int
-  dosen_id Int
 
-  dosen Dosen @relation(fields: [dosen_id], references: [id])
-  mataKuliah MataKuliah @relation(fields: [mata_kuliah_id], references: [id])
   tahunAjaran TahunAjaran @relation(fields: [tahun_ajaran_id], references: [id])
-  kelas Kelas @relation(fields: [kelas_id], references: [id])
+  kelasMataKuliahDosen KelasMataKuliahDosen @relation(fields: [kelas_mk_dosen_id], references: [kelas_mk_dosen_id])
   @@map("jadwals")
 }
 
@@ -158,14 +149,10 @@ model JadwalPertemuan {
   qr_code String @db.VarChar(100)
   topik_perkuliahan String @db.VarChar(100)
   status Boolean
-  kelas_id Int
-  mata_kuliah_id Int
-  dosen_id Int
+  kelas_mk_dosen_id Int
 
+  kelasMataKuliahDosen KelasMataKuliahDosen @relation(fields: [kelas_mk_dosen_id], references: [kelas_mk_dosen_id])
   presensiMahasiswa PresensiMahasiswa[]
-  dosen Dosen @relation(fields: [dosen_id], references: [id])
-  mataKuliah MataKuliah @relation(fields: [mata_kuliah_id], references: [id])
-  kelas Kelas @relation(fields: [kelas_id], references: [id])
   @@map("jadwal_pertemuans")
 }
 

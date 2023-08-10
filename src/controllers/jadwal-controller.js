@@ -56,6 +56,8 @@ const search = async (req, res, next) => {
     const request = {
       kelas_id: req.query.kelas_id,
       tahun_ajaran_id: req.query.tahun_ajaran_id,
+      dosen_id: req.query.dosen_id,
+      mata_kuliah_id: req.query.mata_kuliah_id,
       page: req.query.page,
       size: req.query.size,
     };
@@ -70,4 +72,51 @@ const search = async (req, res, next) => {
   }
 };
 
-export default { create, update, get, remove, search };
+const dosenJadwal = async (req, res, next) => {
+  try {
+    const dosenId = req.params.dosenId;
+    const request = {
+      hari: req.query.hari,
+      page: req.query.page,
+      size: req.query.size,
+    };
+
+    const result = await jadwalServices.jadwalDosen(dosenId, request);
+
+    res.status(200).json({
+      data: result.data,
+      paging: result.paging,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
+const mahasiswaJadwal = async (req, res, next) => {
+  try {
+    const mahasiswaId = req.params.mahasiswaId;
+    const request = {
+      hari: req.query.hari,
+      page: req.query.page,
+      size: req.query.size,
+    };
+
+    const result = await jadwalServices.jadwalMahasiswa(mahasiswaId, request);
+
+    res.status(200).json({
+      data: result,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
+export default {
+  create,
+  update,
+  get,
+  remove,
+  search,
+  dosenJadwal,
+  mahasiswaJadwal,
+};

@@ -10,6 +10,7 @@ import tahunAjaranController from "../controllers/tahunAjaran-controller.js";
 import kelasController from "../controllers/kelas-controller.js";
 import mataKuliahController from "../controllers/mataKuliah-controller.js";
 import jadwalController from "../controllers/jadwal-controller.js";
+import jadwalPertemuanController from "../controllers/jadwalPertemuan-controller.js";
 
 const userRouter = new express.Router();
 userRouter.use(authMiddleware);
@@ -30,6 +31,14 @@ userRouter.post("/api/mahasiswa", mahasiswaController.create);
 userRouter.get("/api/mahasiswa/:mahasiswaId", mahasiswaController.get);
 userRouter.put("/api/mahasiswa/:mahasiswaId", mahasiswaController.update);
 userRouter.delete("/api/mahasiswa/:mahasiswaId", mahasiswaController.remove);
+userRouter.get(
+  "/api/mahasiswa/:mahasiswaId/mataKuliah",
+  mataKuliahController.groupMataKuliahMahasiswa
+);
+userRouter.get(
+  "/api/mahasiswa/:mahasiswaId/jadwal",
+  jadwalController.mahasiswaJadwal
+);
 
 // Dosen API
 userRouter.get("/api/dosen", dosenController.search);
@@ -37,6 +46,11 @@ userRouter.post("/api/dosen", dosenController.create);
 userRouter.get("/api/dosen/:dosenId", dosenController.get);
 userRouter.put("/api/dosen/:dosenId", dosenController.update);
 userRouter.delete("/api/dosen/:dosenId", dosenController.remove);
+userRouter.get("/api/dosen/:dosenId/jadwal", jadwalController.dosenJadwal);
+userRouter.get(
+  "/api/dosen/:dosenId/mataKuliah",
+  mataKuliahController.groupMataKuliahDosen
+);
 
 // Jurusan API
 userRouter.get("/api/jurusan", jurusanController.search);
@@ -75,6 +89,10 @@ userRouter.post("/api/mataKuliah", mataKuliahController.create);
 userRouter.get("/api/mataKuliah/:mataKuliahId", mataKuliahController.get);
 userRouter.put("/api/mataKuliah/:mataKuliahId", mataKuliahController.update);
 userRouter.delete("/api/mataKuliah/:mataKuliahId", mataKuliahController.remove);
+userRouter.get(
+  "/api/mataKuliah/:mataKuliahId/kelas/:kelasId/dosen/:dosenId",
+  jadwalPertemuanController.search
+);
 
 // Jadwal API
 userRouter.get("/api/jadwal", jadwalController.search);
@@ -82,5 +100,8 @@ userRouter.post("/api/jadwal", jadwalController.create);
 userRouter.get("/api/jadwal/:jadwalId", jadwalController.get);
 userRouter.put("/api/jadwal/:jadwalId", jadwalController.update);
 userRouter.delete("/api/jadwal/:jadwalId", jadwalController.remove);
+
+// Aktivasi Perkuliahan API
+userRouter.post("/api/jadwal", jadwalPertemuanController.create);
 
 export { userRouter };

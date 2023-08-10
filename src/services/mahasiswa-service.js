@@ -196,12 +196,37 @@ const search = async (request) => {
     });
   }
 
-  const mahasiswa = await prismaClient.mahasiswa.findMany({
+  const mahasiswas = await prismaClient.mahasiswa.findMany({
     where: {
       AND: filters,
     },
     take: request.size,
     skip: skip,
+    select: {
+      id: true,
+      nama_mahasiswa: true,
+      nim: true,
+      kelas: {
+        select: {
+          nama_kelas: true,
+          tahunAjaran: {
+            select: {
+              nama: true,
+            },
+          },
+          prodi: {
+            select: {
+              nama_prodi: true,
+              jurusan: {
+                select: {
+                  nama_jurusan: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   });
 
   const totalItems = await prismaClient.mahasiswa.count({
@@ -210,8 +235,18 @@ const search = async (request) => {
     },
   });
 
+  const results = mahasiswas.map((mahasiswa) => ({
+    id: mahasiswa.id,
+    nama_mahasiswa: mahasiswa.nama_mahasiswa,
+    nim: mahasiswa.nim,
+    kelas: mahasiswa.kelas.nama_kelas,
+    tahunAjaran: mahasiswa.kelas.kelas.tahunAjaran,
+    prodi: mahasiswa.kelas.prodi.nama_prodi,
+    jurusan: mahasiswa.kelas.prodi.jurusan.nama_jurusan,
+  }));
+
   return {
-    data: mahasiswa,
+    data: results,
     paging: {
       page: request.page,
       total_item: totalItems,

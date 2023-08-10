@@ -56,7 +56,6 @@ const search = async (req, res, next) => {
     const request = {
       nama: req.query.nama,
       kode: req.query.kode,
-      dosen_id: req.query.dosen_id,
       page: req.query.page,
       size: req.query.size,
     };
@@ -71,4 +70,40 @@ const search = async (req, res, next) => {
   }
 };
 
-export default { create, update, get, remove, search };
+const groupMataKuliahDosen = async (req, res, next) => {
+  try {
+    const dosenId = req.params.dosenId;
+
+    const result = await mataKuliahService.listDosen(dosenId);
+
+    res.status(200).json({
+      data: result,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
+const groupMataKuliahMahasiswa = async (req, res, next) => {
+  try {
+    const mahasiswaId = req.params.mahasiswaId;
+
+    const result = await mataKuliahService.listMahasiswa(mahasiswaId);
+
+    res.status(200).json({
+      data: result,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
+export default {
+  create,
+  update,
+  get,
+  remove,
+  search,
+  groupMataKuliahDosen,
+  groupMataKuliahMahasiswa,
+};
