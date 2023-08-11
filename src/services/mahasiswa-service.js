@@ -240,7 +240,7 @@ const search = async (request) => {
     nama_mahasiswa: mahasiswa.nama_mahasiswa,
     nim: mahasiswa.nim,
     kelas: mahasiswa.kelas.nama_kelas,
-    tahunAjaran: mahasiswa.kelas.kelas.tahunAjaran,
+    tahunAjaran: mahasiswa.kelas.tahunAjaran.nama,
     prodi: mahasiswa.kelas.prodi.nama_prodi,
     jurusan: mahasiswa.kelas.prodi.jurusan.nama_jurusan,
   }));

@@ -11,10 +11,14 @@ const create = async (req, res, next) => {
   }
 };
 
-const get = async (req, res, next) => {
+const jadwalPertemuanMahasiswa = async (req, res, next) => {
   try {
-    const jadwalPertemuan = req.params.jadwalPertemuan;
-    const result = await jadwalPertemuan.get(jadwalPertemuan);
+    const mahasiswaId = req.params.mahasiswaId;
+    const listPertemuanId = req.params.listPertemuanId;
+    const result = await jadwalPertemuan.jadwalPertemuanMahasiswa(
+      mahasiswaId,
+      listPertemuanId
+    );
     res.status(200).json({
       data: result,
     });
@@ -66,4 +70,11 @@ const search = async (req, res, next) => {
   }
 };
 
-export default { create, update, get, remove, search };
+export default {
+  create,
+  update,
+  // get,
+  remove,
+  search,
+  jadwalPertemuanMahasiswa,
+};

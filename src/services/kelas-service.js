@@ -200,6 +200,11 @@ const search = async (request) => {
       prodi: {
         select: {
           nama_prodi: true,
+          jurusan: {
+            select: {
+              nama_jurusan: true,
+            },
+          },
         },
       },
     },
@@ -220,6 +225,7 @@ const search = async (request) => {
     nama_kelas: item.nama_kelas,
     tahunAjaran: item.tahunAjaran.nama,
     prodi: item.prodi.nama_prodi,
+    jurusan: item.prodi.jurusan.nama_jurusan,
   }));
 
   return {

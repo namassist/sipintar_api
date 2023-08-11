@@ -146,7 +146,7 @@ model JadwalPertemuan {
   jam_akhir String @db.VarChar(100)
   waktu_realisasi DateTime @db.DateTime
   ruangan String @db.VarChar(100)
-  qr_code String @db.VarChar(100)
+  qr_code String @db.LongText
   topik_perkuliahan String @db.VarChar(100)
   status Boolean
   kelas_mk_dosen_id Int

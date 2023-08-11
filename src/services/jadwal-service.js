@@ -360,25 +360,29 @@ const search = async (request) => {
       jam_mulai: true,
       jam_akhir: true,
       ruangan: true,
-      kelas: {
-        select: {
-          nama_kelas: true,
-        },
-      },
       tahunAjaran: {
         select: {
           nama: true,
         },
       },
-      mataKuliah: {
+      kelasMataKuliahDosen: {
         select: {
-          nama_mk: true,
-          kode_mk: true,
-        },
-      },
-      dosen: {
-        select: {
-          nama_dosen: true,
+          kelas: {
+            select: {
+              nama_kelas: true,
+            },
+          },
+          mataKuliah: {
+            select: {
+              nama_mk: true,
+              kode_mk: true,
+            },
+          },
+          dosen: {
+            select: {
+              nama_dosen: true,
+            },
+          },
         },
       },
     },
@@ -400,11 +404,11 @@ const search = async (request) => {
     jam_mulai: item.jam_mulai,
     jam_akhir: item.jam_akhir,
     ruangan: item.ruangan,
-    kelas: item.kelas.nama_kelas,
+    kelas: item.kelasMataKuliahDosen.kelas.nama_kelas,
     tahunAjaran: item.tahunAjaran.nama,
-    mataKuliah: item.mataKuliah.nama_mk,
-    kode_mk: item.mataKuliah.kode_mk,
-    dosen: item.dosen.nama_dosen,
+    mataKuliah: item.kelasMataKuliahDosen.mataKuliah.nama_mk,
+    kode_mk: item.kelasMataKuliahDosen.mataKuliah.kode_mk,
+    dosen: item.kelasMataKuliahDosen.dosen.nama_dosen,
   }));
 
   return {
@@ -416,6 +420,7 @@ const search = async (request) => {
     },
   };
 };
+
 const jadwalDosen = async (dosenId, request) => {
   dosenId = await checkDosenMustExists(dosenId);
   request = validate(searchJadwalDosenValidation, request);
@@ -441,7 +446,9 @@ const jadwalDosen = async (dosenId, request) => {
   const dosen = await prismaClient.jadwal.findMany({
     where: {
       AND: filters,
-      dosen_id: dosenId,
+      kelasMataKuliahDosen: {
+        dosen_id: dosenId,
+      },
     },
     take: request.size,
     skip: skip,
@@ -451,15 +458,19 @@ const jadwalDosen = async (dosenId, request) => {
       jam_mulai: true,
       jam_akhir: true,
       ruangan: true,
-      kelas: {
+      kelasMataKuliahDosen: {
         select: {
-          nama_kelas: true,
-        },
-      },
-      mataKuliah: {
-        select: {
-          nama_mk: true,
-          kode_mk: true,
+          kelas: {
+            select: {
+              nama_kelas: true,
+            },
+          },
+          mataKuliah: {
+            select: {
+              nama_mk: true,
+              kode_mk: true,
+            },
+          },
         },
       },
     },
@@ -480,10 +491,10 @@ const jadwalDosen = async (dosenId, request) => {
     hari: item.hari,
     jam_mulai: item.jam_mulai,
     jam_akhir: item.jam_akhir,
-    kelas: item.kelas.nama_kelas,
     ruangan: item.ruangan,
-    nama_mk: item.mataKuliah.nama_mk,
-    kode_mk: item.mataKuliah.kode_mk,
+    kelas: item.kelasMataKuliahDosen.kelas.nama_kelas,
+    nama_mk: item.kelasMataKuliahDosen.mataKuliah.nama_mk,
+    kode_mk: item.kelasMataKuliahDosen.mataKuliah.kode_mk,
   }));
 
   return {
@@ -499,19 +510,20 @@ const jadwalDosen = async (dosenId, request) => {
 const jadwalMahasiswa = async (mahasiswaId) => {
   mahasiswaId = await checkMahasiswaMustExists(mahasiswaId);
 
-  const kelasMahasiswa = await prismaClient.mahasiswa.findUnique({
+  const kelas = await prismaClient.mahasiswa.findUnique({
     where: {
       id: mahasiswaId,
     },
     select: {
-      nama_mahasiswa: true,
       kelas_id: true,
     },
   });
 
   const jadwals = await prismaClient.jadwal.findMany({
     where: {
-      kelas_id: kelasMahasiswa.kelas_id,
+      kelasMataKuliahDosen: {
+        kelas_id: kelas.id,
+      },
     },
     select: {
       id: true,
@@ -519,25 +531,24 @@ const jadwalMahasiswa = async (mahasiswaId) => {
       jam_mulai: true,
       jam_akhir: true,
       ruangan: true,
-      kelas: {
+      kelasMataKuliahDosen: {
         select: {
-          nama_kelas: true,
-        },
-      },
-      mataKuliah: {
-        select: {
-          nama_mk: true,
-          kode_mk: true,
-        },
-      },
-      dosen: {
-        select: {
-          nama_dosen: true,
-        },
-      },
-      tahunAjaran: {
-        select: {
-          nama: true,
+          dosen: {
+            select: {
+              nama_dosen: true,
+            },
+          },
+          kelas: {
+            select: {
+              nama_kelas: true,
+            },
+          },
+          mataKuliah: {
+            select: {
+              nama_mk: true,
+              kode_mk: true,
+            },
+          },
         },
       },
     },
@@ -552,12 +563,10 @@ const jadwalMahasiswa = async (mahasiswaId) => {
     hari: item.hari,
     jam_mulai: item.jam_mulai,
     jam_akhir: item.jam_akhir,
-    kelas: item.kelas.nama_kelas,
     ruangan: item.ruangan,
-    nama_mk: item.mataKuliah.nama_mk,
-    kode_mk: item.mataKuliah.kode_mk,
-    tahunAjaran: item.tahunAjaran.nama,
-    dosen: item.dosen.nama_dosen,
+    dosen: item.kelasMataKuliahDosen.dosen.nama_dosen,
+    nama_mk: item.kelasMataKuliahDosen.mataKuliah.nama_mk,
+    kode_mk: item.kelasMataKuliahDosen.mataKuliah.kode_mk,
   }));
 
   return results;

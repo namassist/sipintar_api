@@ -236,10 +236,10 @@ const listDosen = async (dosenId) => {
       where: {
         dosen_id: dosenId,
       },
-      include: {
+      select: {
+        kelas_mk_dosen_id: true,
         mataKuliah: {
           select: {
-            id: true,
             nama_mk: true,
             kode_mk: true,
             total_jam: true,
@@ -247,8 +247,12 @@ const listDosen = async (dosenId) => {
         },
         kelas: {
           select: {
-            id: true,
             nama_kelas: true,
+          },
+        },
+        dosen: {
+          select: {
+            nama_dosen: true,
           },
         },
       },
@@ -256,15 +260,11 @@ const listDosen = async (dosenId) => {
   );
 
   const results = kelasMataKuliahDosen.map((item) => ({
+    kelas_mk_id: item.kelas_mk_dosen_id,
     nama_mk: item.mataKuliah.nama_mk,
     kode_mk: item.mataKuliah.kode_mk,
     total_jam: item.mataKuliah.total_jam,
     kelas: item.kelas.nama_kelas,
-    key: {
-      dosen_id: item.dosen_id,
-      mata_kuliah_id: item.mataKuliah.id,
-      kelas_id: item.kelas.id,
-    },
   }));
 
   return results;
@@ -288,10 +288,10 @@ const listMahasiswa = async (mahasiswaId) => {
       where: {
         kelas_id: kelasMahasiswa.kelas_id,
       },
-      include: {
+      select: {
+        kelas_mk_dosen_id: true,
         mataKuliah: {
           select: {
-            id: true,
             nama_mk: true,
             kode_mk: true,
             total_jam: true,
@@ -299,13 +299,11 @@ const listMahasiswa = async (mahasiswaId) => {
         },
         kelas: {
           select: {
-            id: true,
             nama_kelas: true,
           },
         },
         dosen: {
           select: {
-            id: true,
             nama_dosen: true,
           },
         },
@@ -314,16 +312,12 @@ const listMahasiswa = async (mahasiswaId) => {
   );
 
   const results = kelasMataKuliahDosen.map((item) => ({
+    kelas_mk_id: item.kelas_mk_dosen_id,
     nama_mk: item.mataKuliah.nama_mk,
     kode_mk: item.mataKuliah.kode_mk,
     total_jam: item.mataKuliah.total_jam,
     kelas: item.kelas.nama_kelas,
     dosen: item.dosen.nama_dosen,
-    key: {
-      dosen_id: item.dosen_id,
-      mata_kuliah_id: item.mataKuliah.id,
-      kelas_id: item.kelas.id,
-    },
   }));
 
   return results;
