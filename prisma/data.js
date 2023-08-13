@@ -191,34 +191,9 @@ export const mataKuliahs = [
   {
     nama_mk: "Jaringan",
     kode_mk: "PJA",
-    total_jam: 5,
   },
   {
     nama_mk: "Website",
     kode_mk: "PW",
-    total_jam: 5,
-  },
-];
-
-export const kelasMataKuliahDosens = [
-  {
-    kelas_id: 1,
-    mata_kuliah_id: 1,
-    dosen_id: 1,
-  },
-  {
-    kelas_id: 1,
-    mata_kuliah_id: 2,
-    dosen_id: 2,
-  },
-  {
-    kelas_id: 2,
-    mata_kuliah_id: 1,
-    dosen_id: 1,
-  },
-  {
-    kelas_id: 2,
-    mata_kuliah_id: 2,
-    dosen_id: 1,
   },
 ];

@@ -3,7 +3,6 @@ import Joi from "joi";
 const createMataKuliahValidation = Joi.object({
   nama_mk: Joi.string().max(100).required(),
   kode_mk: Joi.string().max(100).required(),
-  total_jam: Joi.number().positive().required(),
 });
 
 const getMataKuliahValidation = Joi.number().positive().required();
@@ -12,7 +11,6 @@ const updateMataKuliahValidation = Joi.object({
   id: Joi.number().positive().required(),
   nama_mk: Joi.string().max(100).required(),
   kode_mk: Joi.string().max(100).required(),
-  total_jam: Joi.number().positive().required(),
 });
 
 const searchMataKuliahValidation = Joi.object({

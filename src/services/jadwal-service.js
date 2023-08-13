@@ -50,7 +50,7 @@ const create = async (requests) => {
 
   for (const request of requests) {
     const validatedRequest = validate(createJadwalValidation, request);
-    // Cari atau buat relasi di kelasMataKuliahDosen
+
     const existingRelation = await prismaClient.kelasMataKuliahDosen.findFirst({
       where: {
         kelas_id: validatedRequest.kelas_id,
@@ -77,13 +77,13 @@ const create = async (requests) => {
       pivotId = existingRelation.kelas_mk_dosen_id;
     }
 
-    // Buat jadwal dengan menggunakan pivotId
     const createdJadwal = await prismaClient.jadwal.create({
       data: {
         hari: validatedRequest.hari,
         jam_mulai: validatedRequest.jam_mulai,
         jam_akhir: validatedRequest.jam_akhir,
         ruangan: validatedRequest.ruangan,
+        total_jam: validatedRequest.total_jam,
         kelas_mk_dosen_id: pivotId,
         tahun_ajaran_id: validatedRequest.tahun_ajaran_id,
       },
@@ -108,6 +108,7 @@ const get = async (jadwalId) => {
       jam_mulai: true,
       jam_akhir: true,
       ruangan: true,
+      total_jam: true,
       tahunAjaran: {
         select: {
           nama: true,
@@ -146,6 +147,7 @@ const get = async (jadwalId) => {
     jam_mulai: jadwal.jam_mulai,
     jam_akhir: jadwal.jam_akhir,
     ruangan: jadwal.ruangan,
+    total_jam: jadwal.total_jam,
     tahunAjaran: jadwal.tahunAjaran.nama,
     kelas: jadwal.kelasMataKuliahDosen.kelas.nama_kelas,
     mataKuliah: jadwal.kelasMataKuliahDosen.mataKuliah.nama_mk,
@@ -199,6 +201,7 @@ const update = async (request) => {
       jam_mulai: jadwal.jam_mulai,
       jam_akhir: jadwal.jam_akhir,
       ruangan: jadwal.ruangan,
+      total_jam: jadwal.total_jam,
       tahun_ajaran_id: jadwal.tahun_ajaran_id,
       kelas_mk_dosen_id: updatedPivot.kelas_mk_dosen_id,
     },
@@ -208,6 +211,7 @@ const update = async (request) => {
       jam_mulai: true,
       jam_akhir: true,
       ruangan: true,
+      total_jam: true,
       tahunAjaran: {
         select: {
           nama: true,
@@ -242,6 +246,7 @@ const update = async (request) => {
     jam_mulai: updatedJadwal.jam_mulai,
     jam_akhir: updatedJadwal.jam_akhir,
     ruangan: updatedJadwal.ruangan,
+    total_jam: updatedJadwal.total_jam,
     tahunAjaran: updatedJadwal.tahunAjaran.nama,
     kelas: updatedJadwal.kelasMataKuliahDosen.kelas.nama_kelas,
     mataKuliah: updatedJadwal.kelasMataKuliahDosen.mataKuliah.nama_mk,
@@ -360,6 +365,7 @@ const search = async (request) => {
       jam_mulai: true,
       jam_akhir: true,
       ruangan: true,
+      total_jam: true,
       tahunAjaran: {
         select: {
           nama: true,
@@ -404,6 +410,7 @@ const search = async (request) => {
     jam_mulai: item.jam_mulai,
     jam_akhir: item.jam_akhir,
     ruangan: item.ruangan,
+    total_jam: item.total_jam,
     kelas: item.kelasMataKuliahDosen.kelas.nama_kelas,
     tahunAjaran: item.tahunAjaran.nama,
     mataKuliah: item.kelasMataKuliahDosen.mataKuliah.nama_mk,
@@ -458,6 +465,7 @@ const jadwalDosen = async (dosenId, request) => {
       jam_mulai: true,
       jam_akhir: true,
       ruangan: true,
+      total_jam: true,
       kelasMataKuliahDosen: {
         select: {
           kelas: {
@@ -492,6 +500,7 @@ const jadwalDosen = async (dosenId, request) => {
     jam_mulai: item.jam_mulai,
     jam_akhir: item.jam_akhir,
     ruangan: item.ruangan,
+    total_jam: item.total_jam,
     kelas: item.kelasMataKuliahDosen.kelas.nama_kelas,
     nama_mk: item.kelasMataKuliahDosen.mataKuliah.nama_mk,
     kode_mk: item.kelasMataKuliahDosen.mataKuliah.kode_mk,
@@ -531,6 +540,7 @@ const jadwalMahasiswa = async (mahasiswaId) => {
       jam_mulai: true,
       jam_akhir: true,
       ruangan: true,
+      total_jam: true,
       kelasMataKuliahDosen: {
         select: {
           dosen: {
@@ -564,6 +574,7 @@ const jadwalMahasiswa = async (mahasiswaId) => {
     jam_mulai: item.jam_mulai,
     jam_akhir: item.jam_akhir,
     ruangan: item.ruangan,
+    total_jam: item.total_jam,
     dosen: item.kelasMataKuliahDosen.dosen.nama_dosen,
     nama_mk: item.kelasMataKuliahDosen.mataKuliah.nama_mk,
     kode_mk: item.kelasMataKuliahDosen.mataKuliah.kode_mk,

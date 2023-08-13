@@ -60,13 +60,11 @@ const create = async (request) => {
     data: {
       nama_mk: mataKuliah.nama_mk,
       kode_mk: mataKuliah.kode_mk,
-      total_jam: mataKuliah.total_jam,
     },
     select: {
       id: true,
       nama_mk: true,
       kode_mk: true,
-      total_jam: true,
     },
   });
 
@@ -74,7 +72,6 @@ const create = async (request) => {
     id: createdMataKuliah.id,
     nama_mk: createdMataKuliah.nama_mk,
     kode_mk: createdMataKuliah.kode_mk,
-    total_jam: createdMataKuliah.total_jam,
   };
 };
 
@@ -89,7 +86,6 @@ const get = async (mataKuliahId) => {
       id: true,
       nama_mk: true,
       kode_mk: true,
-      total_jam: true,
     },
   });
 
@@ -101,7 +97,6 @@ const get = async (mataKuliahId) => {
     id: mataKuliah.id,
     nama_mk: mataKuliah.nama_mk,
     kode_mk: mataKuliah.kode_mk,
-    total_jam: mataKuliah.total_jam,
   };
 };
 
@@ -125,13 +120,11 @@ const update = async (request) => {
     data: {
       nama_mk: mataKuliah.nama_mk,
       kode_mk: mataKuliah.kode_mk,
-      total_jam: mataKuliah.total_jam,
     },
     select: {
       id: true,
       nama_mk: true,
       kode_mk: true,
-      total_jam: true,
     },
   });
 
@@ -139,7 +132,6 @@ const update = async (request) => {
     id: updatedMataKuliah.id,
     nama_mk: updatedMataKuliah.nama_mk,
     kode_mk: updatedMataKuliah.kode_mk,
-    total_jam: updatedMataKuliah.total_jam,
   };
 };
 
@@ -204,7 +196,6 @@ const search = async (request) => {
       id: true,
       nama_mk: true,
       kode_mk: true,
-      total_jam: true,
     },
   });
 
@@ -242,7 +233,6 @@ const listDosen = async (dosenId) => {
           select: {
             nama_mk: true,
             kode_mk: true,
-            total_jam: true,
           },
         },
         kelas: {
@@ -263,7 +253,6 @@ const listDosen = async (dosenId) => {
     kelas_mk_id: item.kelas_mk_dosen_id,
     nama_mk: item.mataKuliah.nama_mk,
     kode_mk: item.mataKuliah.kode_mk,
-    total_jam: item.mataKuliah.total_jam,
     kelas: item.kelas.nama_kelas,
   }));
 
@@ -294,7 +283,6 @@ const listMahasiswa = async (mahasiswaId) => {
           select: {
             nama_mk: true,
             kode_mk: true,
-            total_jam: true,
           },
         },
         kelas: {
@@ -315,7 +303,6 @@ const listMahasiswa = async (mahasiswaId) => {
     kelas_mk_id: item.kelas_mk_dosen_id,
     nama_mk: item.mataKuliah.nama_mk,
     kode_mk: item.mataKuliah.kode_mk,
-    total_jam: item.mataKuliah.total_jam,
     kelas: item.kelas.nama_kelas,
     dosen: item.dosen.nama_dosen,
   }));

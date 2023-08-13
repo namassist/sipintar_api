@@ -1,111 +1,68 @@
 import { prismaClient } from "../apps/database.js";
-import qrcode from "qrcode";
-import pkg from "jsonwebtoken";
 import { validate } from "../validations/validation.js";
-import { getDosenValidation } from "../validations/dosen-validation.js";
-import { getMataKuliahValidation } from "../validations/mataKuliah-validation.js";
-import { getKelasValidation } from "../validations/kelas-validation.js";
 import { ResponseError } from "../errors/response-error.js";
-import {
-  createJadwalPertemuanValidation,
-  getJadwalPertemuanValidation,
-} from "../validations/jadwalPertemuan-validation.js";
-const { sign } = pkg;
+import { getJadwalPertemuanValidation } from "../validations/jadwalPertemuan-validation.js";
 
-const checkDosenMustExists = async (dosenId) => {
-  dosenId = validate(getDosenValidation, dosenId);
-
-  const totalDosentInDatabase = await prismaClient.dosen.count({
-    where: {
-      id: dosenId,
-    },
-  });
-
-  if (totalDosentInDatabase !== 1) {
-    throw new ResponseError(404, "dosen is not found");
-  }
-
-  return dosenId;
-};
-
-const checkMataKuliahMustExists = async (mataKuliahId) => {
-  mataKuliahId = validate(getMataKuliahValidation, mataKuliahId);
-
-  const totalDosentInDatabase = await prismaClient.mataKuliah.count({
-    where: {
-      id: mataKuliahId,
-    },
-  });
-
-  if (totalDosentInDatabase !== 1) {
-    throw new ResponseError(404, "dosen is not found");
-  }
-
-  return mataKuliahId;
-};
-
-const checkKelasMustExists = async (kelasId) => {
-  kelasId = validate(getKelasValidation, kelasId);
-
-  const totalDosentInDatabase = await prismaClient.kelas.count({
-    where: {
-      id: kelasId,
-    },
-  });
-
-  if (totalDosentInDatabase !== 1) {
-    throw new ResponseError(404, "dosen is not found");
-  }
-
-  return kelasId;
-};
+import { createPresensiValidation } from "../validations/presensi-validation.js";
 
 const create = async (request) => {
-  const jadwalPertemuans = validate(createJadwalPertemuanValidation, request);
-  const secretKey = "rifkasyantik";
+  const presensi = validate(createPresensiValidation, request);
 
-  const createdJadwalPertemuan = await prismaClient.jadwalPertemuan.create({
-    data: {
-      hari: jadwalPertemuans.hari,
-      jam_mulai: jadwalPertemuans.jam_mulai,
-      jam_akhir: jadwalPertemuans.jam_akhir,
-      waktu_realisasi: jadwalPertemuans.waktu_realisasi,
-      ruangan: jadwalPertemuans.ruangan,
-      topik_perkuliahan: jadwalPertemuans.topik_perkuliahan,
-      kelas_mk_dosen_id: jadwalPertemuans.kelas_mk_dosen_id,
-      qr_code: "",
-      status: true,
+  const mahasiswa = await prismaClient.mahasiswa.findUnique({
+    where: {
+      id: presensi.mahasiswa_id,
+    },
+    select: {
+      kelas_id: true,
+    },
+  });
+
+  const isAvailable = await prismaClient.jadwalPertemuan.findFirst({
+    where: {
+      kelasMataKuliahDosen: {
+        kelas_id: mahasiswa.kelas_id,
+      },
+      qr_code: presensi.qr_code,
     },
     select: {
       id: true,
-      hari: true,
-      jam_mulai: true,
-      jam_akhir: true,
-      waktu_realisasi: true,
-      ruangan: true,
-      topik_perkuliahan: true,
-      kelas_mk_dosen_id: true,
-      status: true,
     },
   });
 
-  const encryptedData = sign(createdJadwalPertemuan, secretKey);
+  if (isAvailable.id === undefined) {
+    throw new ResponseError(404, "presensi tidak valid");
+  }
 
-  qrcode.toDataURL(encryptedData, async (err, url) => {
-    if (err) {
-      throw new ResponseError(500, "cant generate qrCode, error");
-    }
-    await prismaClient.jadwalPertemuan.update({
-      where: {
-        id: createdJadwalPertemuan.id,
-      },
-      data: {
-        qr_code: url,
-      },
-    });
+  const isPresensi = await prismaClient.presensiMahasiswa.count({
+    where: {
+      jadwalPertemuan_id: isAvailable.id,
+      mahasiswa_id: presensi.mahasiswa_id,
+    },
   });
 
-  return createdJadwalPertemuan;
+  if (isPresensi === 1) {
+    throw new ResponseError(404, "kamu sudah presensi");
+  }
+
+  const createdPresensi = await prismaClient.presensiMahasiswa.create({
+    data: {
+      jadwalPertemuan_id: isAvailable.id,
+      mahasiswa_id: presensi.mahasiswa_id,
+      waktu_presensi: presensi.waktu_presensi,
+      status_presensi: "Hadir",
+    },
+    select: {
+      id: true,
+      waktu_presensi: true,
+      status_presensi: true,
+    },
+  });
+
+  return {
+    id: createdPresensi.id,
+    waktu: createdPresensi.waktu_presensi,
+    status: createdPresensi.status_presensi,
+  };
 };
 
 const get = async (aktivasiId) => {

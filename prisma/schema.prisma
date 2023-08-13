@@ -104,7 +104,6 @@ model MataKuliah {
   id Int @id @default(autoincrement())
   kode_mk String @db.VarChar(100)
   nama_mk String @db.VarChar(100)
-  total_jam Int @db.Int
 
   kelasMataKuliahDosen KelasMataKuliahDosen[]
   @@map("mata_kuliahs")
@@ -131,6 +130,7 @@ model Jadwal {
   jam_mulai String @db.VarChar(100)
   jam_akhir String @db.VarChar(100)
   ruangan String @db.VarChar(100)
+  total_jam Int @db.Int
   kelas_mk_dosen_id Int
   tahun_ajaran_id Int
 

@@ -11,6 +11,7 @@ import kelasController from "../controllers/kelas-controller.js";
 import mataKuliahController from "../controllers/mataKuliah-controller.js";
 import jadwalController from "../controllers/jadwal-controller.js";
 import jadwalPertemuanController from "../controllers/jadwalPertemuan-controller.js";
+import presensiController from "../controllers/presensi-controller.js";
 
 const userRouter = new express.Router();
 userRouter.use(authMiddleware);
@@ -107,5 +108,12 @@ userRouter.delete("/api/jadwal/:jadwalId", jadwalController.remove);
 
 // Aktivasi Perkuliahan API
 userRouter.post("/api/aktivasiPerkuliahan", jadwalPertemuanController.create);
+userRouter.get(
+  "/api/aktivasiPerkuliahan/:aktivasiId",
+  jadwalPertemuanController.get
+);
+
+// Presensi Mahasiswa
+userRouter.post("/api/presensi", presensiController.create);
 
 export { userRouter };

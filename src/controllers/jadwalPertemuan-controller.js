@@ -11,6 +11,18 @@ const create = async (req, res, next) => {
   }
 };
 
+const get = async (req, res, next) => {
+  try {
+    const aktivasiId = req.params.aktivasiId;
+    const result = await jadwalPertemuan.get(aktivasiId);
+    res.status(200).json({
+      data: result,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
 const jadwalPertemuanMahasiswa = async (req, res, next) => {
   try {
     const mahasiswaId = req.params.mahasiswaId;
@@ -73,7 +85,7 @@ const search = async (req, res, next) => {
 export default {
   create,
   update,
-  // get,
+  get,
   remove,
   search,
   jadwalPertemuanMahasiswa,

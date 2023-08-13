@@ -9,7 +9,6 @@ import {
   dosens,
   admins,
   mataKuliahs,
-  kelasMataKuliahDosens,
 } from "./data.js";
 
 const prisma = new PrismaClient();
@@ -17,9 +16,6 @@ const prisma = new PrismaClient();
 const load = async () => {
   try {
     // delete
-    await prisma.kelasMataKuliahDosen.deleteMany();
-    console.log("Deleted records in kelas_mata_kuliah_dosens table");
-
     await prisma.mataKuliah.deleteMany();
     console.log("Deleted records in mata_kuliahs table");
 
@@ -48,9 +44,6 @@ const load = async () => {
     console.log("Deleted records in jurusans table");
 
     // truncate
-    await prisma.$queryRaw`ALTER TABLE kelas_mata_kuliah_dosens AUTO_INCREMENT = 1`;
-    console.log("reset KelasMataKuliahs auto increment to 1");
-
     await prisma.$queryRaw`ALTER TABLE mata_kuliahs AUTO_INCREMENT = 1`;
     console.log("reset mata_kuliahs auto increment to 1");
 
@@ -123,11 +116,6 @@ const load = async () => {
       data: mataKuliahs,
     });
     console.log("Added mataKuliahs data");
-
-    await prisma.kelasMataKuliahDosen.createMany({
-      data: kelasMataKuliahDosens,
-    });
-    console.log("Added kelas_mata_kuliah_dosens data");
   } catch (e) {
     console.error(e);
     process.exit(1);

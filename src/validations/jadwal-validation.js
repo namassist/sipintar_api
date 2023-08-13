@@ -9,6 +9,7 @@ const createJadwalValidation = Joi.object({
     .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
     .required(),
   ruangan: Joi.string().max(100).required(),
+  total_jam: Joi.number().positive().required(),
   kelas_id: Joi.number().required(),
   tahun_ajaran_id: Joi.number().required(),
   mata_kuliah_id: Joi.number().required(),
@@ -33,6 +34,7 @@ const updateJadwalValidation = Joi.object({
     .required(),
   ruangan: Joi.string().max(100).required(),
   kelas_id: Joi.number().required(),
+  total_jam: Joi.number().positive().required(),
   tahun_ajaran_id: Joi.number().required(),
   mata_kuliah_id: Joi.number().required(),
   dosen_id: Joi.number().required(),
