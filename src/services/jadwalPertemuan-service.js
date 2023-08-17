@@ -71,6 +71,7 @@ const create = async (request) => {
       jam_akhir: jadwalPertemuans.jam_akhir,
       waktu_realisasi: jadwalPertemuans.waktu_realisasi,
       ruangan: jadwalPertemuans.ruangan,
+      total_jam: jadwalPertemuans.total_jam,
       topik_perkuliahan: jadwalPertemuans.topik_perkuliahan,
       kelas_mk_dosen_id: jadwalPertemuans.kelas_mk_dosen_id,
       qr_code: "",
@@ -83,6 +84,7 @@ const create = async (request) => {
       jam_akhir: true,
       waktu_realisasi: true,
       ruangan: true,
+      total_jam: true,
       topik_perkuliahan: true,
       kelas_mk_dosen_id: true,
       status: true,
@@ -122,10 +124,11 @@ const get = async (aktivasiId) => {
       jam_akhir: true,
       waktu_realisasi: true,
       ruangan: true,
-      qr_code: true,
+      total_jam: true,
       status: true,
       topik_perkuliahan: true,
       kelas_mk_dosen_id: true,
+      qr_code: true,
     },
   });
 
@@ -140,10 +143,11 @@ const get = async (aktivasiId) => {
     jam_akhir: jadwalPertemuan.jam_akhir,
     waktu_realisasi: jadwalPertemuan.waktu_realisasi,
     ruangan: jadwalPertemuan.ruangan,
-    qr_code: jadwalPertemuan.qr_code,
+    total_jam: jadwalPertemuan.total_jam,
     status: jadwalPertemuan.status,
     topik_perkuliahan: jadwalPertemuan.topik_perkuliahan,
     kelas_mk_dosen_id: jadwalPertemuan.kelas_mk_dosen_id,
+    qr_code: jadwalPertemuan.qr_code,
   };
 };
 
@@ -175,6 +179,7 @@ const jadwalPertemuanMahasiswa = async (mahasiswaId, listPertemuanId) => {
       ruangan: true,
       waktu_realisasi: true,
       topik_perkuliahan: true,
+      total_jam: true,
       qr_code: true,
       status: true,
       kelasMataKuliahDosen: {
@@ -211,12 +216,13 @@ const jadwalPertemuanMahasiswa = async (mahasiswaId, listPertemuanId) => {
     jam_akhir: item.jam_akhir,
     ruangan: item.ruangan,
     waktu_realisasi: item.waktu_realisasi,
+    total_jam: item.total_jam,
     topik_perkuliahan: item.topik_perkuliahan,
-    qr_code: item.qr_code,
     kelas: item.kelasMataKuliahDosen.kelas.nama_kelas,
     dosen: item.kelasMataKuliahDosen.dosen.nama_dosen,
     mataKuliah: item.kelasMataKuliahDosen.mataKuliah.nama_mk,
     kode_mk: item.kelasMataKuliahDosen.mataKuliah.kode_mk,
+    qr_code: item.qr_code,
   }));
 
   return results;

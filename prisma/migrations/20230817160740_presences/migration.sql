@@ -122,6 +122,7 @@ CREATE TABLE `jadwal_pertemuans` (
     `jam_mulai` VARCHAR(100) NOT NULL,
     `jam_akhir` VARCHAR(100) NOT NULL,
     `waktu_realisasi` DATETIME NOT NULL,
+    `total_jam` INTEGER NOT NULL,
     `ruangan` VARCHAR(100) NOT NULL,
     `qr_code` LONGTEXT NOT NULL,
     `topik_perkuliahan` VARCHAR(100) NOT NULL,

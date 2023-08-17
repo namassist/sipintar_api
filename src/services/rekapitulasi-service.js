@@ -93,6 +93,11 @@ const get = async (mahasiswaId) => {
               presensiMahasiswa: {
                 select: {
                   status_presensi: true,
+                  jadwalPertemuan: {
+                    select: {
+                      total_jam: true,
+                    },
+                  },
                 },
               },
             },
@@ -107,24 +112,32 @@ const get = async (mahasiswaId) => {
     nama_mahasiswa: mahasiswa.nama_mahasiswa,
     rekapitulasi: mahasiswa.kelas.kelasMataKuliahDosen.map((mkData) => {
       const mataKuliah = mkData.mataKuliah.nama_mk;
-      const total_jam = mkData.jadwal.reduce(
-        (total, jadwal) => total + jadwal.total_jam,
-        0
-      );
-      const total_hadir = mkData.presensiMahasiswa.filter(
-        (presensi) => presensi.status_presensi === "Hadir"
-      ).length;
-      const total_izin = mkData.presensiMahasiswa.filter(
-        (presensi) => presensi.status_presensi === "Izin"
-      ).length;
-      const total_sakit = mkData.presensiMahasiswa.filter(
-        (presensi) => presensi.status_presensi === "Sakit"
-      ).length;
+      const total_jam =
+        mkData.jadwal.reduce((total, jadwal) => total + jadwal.total_jam, 0) *
+        16;
+      const total_hadir = mkData.presensiMahasiswa
+        .filter((presensi) => presensi.status_presensi === "Hadir")
+        .reduce(
+          (total, presensi) => total + presensi.jadwalPertemuan.total_jam,
+          0
+        );
+      const total_izin = mkData.presensiMahasiswa
+        .filter((presensi) => presensi.status_presensi === "Izin")
+        .reduce(
+          (total, presensi) => total + presensi.jadwalPertemuan.total_jam,
+          0
+        );
+      const total_sakit = mkData.presensiMahasiswa
+        .filter((presensi) => presensi.status_presensi === "Sakit")
+        .reduce(
+          (total, presensi) => total + presensi.jadwalPertemuan.total_jam,
+          0
+        );
       const total_alpha = total_jam - (total_hadir + total_izin + total_sakit);
 
       return {
         mataKuliah,
-        total_jam: total_jam * 16,
+        total_jam,
         total_hadir,
         total_izin,
         total_sakit,

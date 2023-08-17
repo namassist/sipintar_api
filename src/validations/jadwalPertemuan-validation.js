@@ -2,6 +2,7 @@ import Joi from "joi";
 
 const createJadwalPertemuanValidation = Joi.object({
   hari: Joi.string().max(100).required(),
+  total_jam: Joi.number().required(),
   jam_mulai: Joi.string()
     .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
     .required(),
