@@ -66,7 +66,7 @@ const create = async (request) => {
   };
 };
 
-const get = async (mahasiswaId) => {
+const list = async (mahasiswaId) => {
   mahasiswaId = validate(getPresensiValidation, mahasiswaId);
 
   const mahasiswa = await prismaClient.mahasiswa.findUnique({
@@ -90,12 +90,16 @@ const get = async (mahasiswaId) => {
                   total_jam: true,
                 },
               },
-              presensiMahasiswa: {
+              jadwalPertemuan: {
                 select: {
-                  status_presensi: true,
-                  jadwalPertemuan: {
+                  waktu_realisasi: true,
+                  jam_mulai: true,
+                  jam_akhir: true,
+                  total_jam: true,
+                  topik_perkuliahan: true,
+                  presensiMahasiswa: {
                     select: {
-                      total_jam: true,
+                      status_presensi: true,
                     },
                   },
                 },
@@ -110,30 +114,38 @@ const get = async (mahasiswaId) => {
   const result = {
     id: mahasiswa.id,
     nama_mahasiswa: mahasiswa.nama_mahasiswa,
-    rekapitulasi: mahasiswa.kelas.kelasMataKuliahDosen.map((mkData) => {
-      const mataKuliah = mkData.mataKuliah.nama_mk;
+    rekapitulasi: mahasiswa.kelas.kelasMataKuliahDosen.map((data) => {
+      const mataKuliah = data.mataKuliah.nama_mk;
       const total_jam =
-        mkData.jadwal.reduce((total, jadwal) => total + jadwal.total_jam, 0) *
-        16;
-      const total_hadir = mkData.presensiMahasiswa
-        .filter((presensi) => presensi.status_presensi === "Hadir")
-        .reduce(
-          (total, presensi) => total + presensi.jadwalPertemuan.total_jam,
-          0
-        );
-      const total_izin = mkData.presensiMahasiswa
-        .filter((presensi) => presensi.status_presensi === "Izin")
-        .reduce(
-          (total, presensi) => total + presensi.jadwalPertemuan.total_jam,
-          0
-        );
-      const total_sakit = mkData.presensiMahasiswa
-        .filter((presensi) => presensi.status_presensi === "Sakit")
-        .reduce(
-          (total, presensi) => total + presensi.jadwalPertemuan.total_jam,
-          0
-        );
+        data.jadwal.reduce((total, jadwal) => total + jadwal.total_jam, 0) * 16;
+      const total_hadir = data.jadwalPertemuan.reduce((total, jadwal) => {
+        if (jadwal.presensiMahasiswa[0].status_presensi === "Hadir") {
+          return total + jadwal.total_jam;
+        }
+        return total;
+      }, 0);
+      const total_sakit = data.jadwalPertemuan.reduce((total, jadwal) => {
+        if (jadwal.presensiMahasiswa[0].status_presensi === "Sakit") {
+          return total + jadwal.total_jam;
+        }
+        return total;
+      }, 0);
+      const total_izin = data.jadwalPertemuan.reduce((total, jadwal) => {
+        if (jadwal.presensiMahasiswa[0].status_presensi === "Izin") {
+          return total + jadwal.total_jam;
+        }
+        return total;
+      }, 0);
       const total_alpha = total_jam - (total_hadir + total_izin + total_sakit);
+
+      const jadwalPertemuan = data.jadwalPertemuan.map((jadwal) => ({
+        waktu_realisasi: jadwal.waktu_realisasi,
+        jam_mulai: jadwal.jam_mulai,
+        jam_akhir: jadwal.jam_akhir,
+        total_jam: jadwal.total_jam,
+        topik_perkuliahan: jadwal.topik_perkuliahan,
+        status_presensi: jadwal.presensiMahasiswa[0].status_presensi,
+      }));
 
       return {
         mataKuliah,
@@ -142,6 +154,7 @@ const get = async (mahasiswaId) => {
         total_izin,
         total_sakit,
         total_alpha,
+        jadwalPertemuan,
       };
     }),
   };
@@ -151,5 +164,5 @@ const get = async (mahasiswaId) => {
 
 export default {
   create,
-  get,
+  list,
 };

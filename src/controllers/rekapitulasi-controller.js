@@ -1,9 +1,9 @@
 import rekapitulasiMahasiswa from "../services/rekapitulasi-service.js";
 
-const get = async (req, res, next) => {
+const list = async (req, res, next) => {
   try {
     const mahasiswaId = req.params.mahasiswaId;
-    const result = await rekapitulasiMahasiswa.get(mahasiswaId);
+    const result = await rekapitulasiMahasiswa.list(mahasiswaId);
     res.status(200).json({
       data: result,
     });
@@ -13,5 +13,5 @@ const get = async (req, res, next) => {
 };
 
 export default {
-  get,
+  list,
 };
