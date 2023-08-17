@@ -107,6 +107,11 @@ const get = async (username) => {
         kelas: {
           select: {
             nama_kelas: true,
+            tahunAjaran: {
+              select: {
+                nama: true,
+              },
+            },
             prodi: {
               select: {
                 nama_prodi: true,
@@ -127,6 +132,7 @@ const get = async (username) => {
       nama_mahasiswa: mahasiswa.nama_mahasiswa,
       nim: mahasiswa.nim,
       kelas: mahasiswa.kelas.nama_kelas,
+      tahunAjaran: mahasiswa.kelas.tahunAjaran.nama,
       prodi: mahasiswa.kelas.prodi.nama_prodi,
       jurusan: mahasiswa.kelas.prodi.jurusan.nama_jurusan,
     };

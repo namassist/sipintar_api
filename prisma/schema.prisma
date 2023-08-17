@@ -120,6 +120,8 @@ model KelasMataKuliahDosen {
   dosen Dosen @relation(fields: [dosen_id], references: [id])
   jadwal Jadwal[]
   jadwalPertemuan JadwalPertemuan[]
+  presensiMahasiswa PresensiMahasiswa[]
+
 
   @@map("kelas_mata_kuliah_dosens")
 }
@@ -145,6 +147,7 @@ model JadwalPertemuan {
   jam_mulai String @db.VarChar(100)
   jam_akhir String @db.VarChar(100)
   waktu_realisasi DateTime @db.DateTime
+  total_jam Int @db.Int
   ruangan String @db.VarChar(100)
   qr_code String @db.LongText
   topik_perkuliahan String @db.VarChar(100)
@@ -159,12 +162,14 @@ model JadwalPertemuan {
 model PresensiMahasiswa {
   id Int @id @default(autoincrement())
   jadwalPertemuan_id Int
+  kelas_mk_dosen_id Int
   mahasiswa_id Int
   waktu_presensi DateTime @db.DateTime()
   status_presensi StatusPresensi?
 
   mahasiswa Mahasiswa @relation(fields: [mahasiswa_id], references: [id])
   jadwalPertemuan JadwalPertemuan @relation(fields: [jadwalPertemuan_id], references: [id])
+  kelasMataKuliahDosen KelasMataKuliahDosen @relation(fields: [kelas_mk_dosen_id], references: [kelas_mk_dosen_id])
   @@map("presensi_mahasiswas")
 }
 

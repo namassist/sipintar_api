@@ -413,7 +413,7 @@ const search = async (request) => {
     total_jam: item.total_jam,
     kelas: item.kelasMataKuliahDosen.kelas.nama_kelas,
     tahunAjaran: item.tahunAjaran.nama,
-    mataKuliah: item.kelasMataKuliahDosen.mataKuliah.nama_mk,
+    nama_mk: item.kelasMataKuliahDosen.mataKuliah.nama_mk,
     kode_mk: item.kelasMataKuliahDosen.mataKuliah.kode_mk,
     dosen: item.kelasMataKuliahDosen.dosen.nama_dosen,
   }));

@@ -135,6 +135,7 @@ CREATE TABLE `jadwal_pertemuans` (
 CREATE TABLE `presensi_mahasiswas` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `jadwalPertemuan_id` INTEGER NOT NULL,
+    `kelas_mk_dosen_id` INTEGER NOT NULL,
     `mahasiswa_id` INTEGER NOT NULL,
     `waktu_presensi` DATETIME NOT NULL,
     `status_presensi` ENUM('Hadir', 'Sakit', 'Ijin', 'Alpa') NULL,
@@ -189,3 +190,6 @@ ALTER TABLE `presensi_mahasiswas` ADD CONSTRAINT `presensi_mahasiswas_mahasiswa_
 
 -- AddForeignKey
 ALTER TABLE `presensi_mahasiswas` ADD CONSTRAINT `presensi_mahasiswas_jadwalPertemuan_id_fkey` FOREIGN KEY (`jadwalPertemuan_id`) REFERENCES `jadwal_pertemuans`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `presensi_mahasiswas` ADD CONSTRAINT `presensi_mahasiswas_kelas_mk_dosen_id_fkey` FOREIGN KEY (`kelas_mk_dosen_id`) REFERENCES `kelas_mata_kuliah_dosens`(`kelas_mk_dosen_id`) ON DELETE RESTRICT ON UPDATE CASCADE;

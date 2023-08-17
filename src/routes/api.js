@@ -12,6 +12,7 @@ import mataKuliahController from "../controllers/mataKuliah-controller.js";
 import jadwalController from "../controllers/jadwal-controller.js";
 import jadwalPertemuanController from "../controllers/jadwalPertemuan-controller.js";
 import presensiController from "../controllers/presensi-controller.js";
+import rekapitulasiController from "../controllers/rekapitulasi-controller.js";
 
 const userRouter = new express.Router();
 userRouter.use(authMiddleware);
@@ -43,6 +44,10 @@ userRouter.get(
 userRouter.get(
   "/api/mahasiswa/:mahasiswaId/listPertemuan/:listPertemuanId",
   jadwalPertemuanController.jadwalPertemuanMahasiswa
+);
+userRouter.get(
+  "/api/mahasiswa/:mahasiswaId/rekapitulasi",
+  rekapitulasiController.get
 );
 
 // Dosen API
@@ -115,5 +120,6 @@ userRouter.get(
 
 // Presensi Mahasiswa
 userRouter.post("/api/presensi", presensiController.create);
+userRouter.get("/api/presensi/:aktivasiId", presensiController.get);
 
 export { userRouter };

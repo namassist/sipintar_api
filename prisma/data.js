@@ -167,13 +167,13 @@ export const mahasiswas = [
 
 export const dosens = [
   {
-    nama_dosen: "Dosen anu",
+    nama_dosen: "Pa Amran",
     nip: "12345123",
     user_id: 3,
     jurusan_id: 1,
   },
   {
-    nama_dosen: "Dosen itu",
+    nama_dosen: "Bu Wikta",
     nip: "12345678",
     user_id: 4,
     jurusan_id: 1,
@@ -195,5 +195,39 @@ export const mataKuliahs = [
   {
     nama_mk: "Website",
     kode_mk: "PW",
+  },
+];
+
+export const kelasMataKuliahDosen = [
+  {
+    kelas_id: 1,
+    mata_kuliah_id: 1,
+    dosen_id: 1,
+  },
+  {
+    kelas_id: 1,
+    mata_kuliah_id: 2,
+    dosen_id: 2,
+  },
+];
+
+export const jadwal = [
+  {
+    hari: "Senin",
+    jam_mulai: "07:00",
+    jam_akhir: "10:00",
+    ruangan: "SB-1/1",
+    total_jam: 4,
+    tahun_ajaran_id: 1,
+    kelas_mk_dosen_id: 1,
+  },
+  {
+    hari: "Senin",
+    jam_mulai: "10:00",
+    jam_akhir: "12:00",
+    ruangan: "SB-1/2",
+    total_jam: 4,
+    tahun_ajaran_id: 1,
+    kelas_mk_dosen_id: 1,
   },
 ];
