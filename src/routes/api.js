@@ -15,7 +15,7 @@ import presensiController from "../controllers/presensi-controller.js";
 import rekapitulasiController from "../controllers/rekapitulasi-controller.js";
 
 const userRouter = new express.Router();
-// userRouter.use(authMiddleware);
+userRouter.use(authMiddleware);
 
 userRouter.get("/api/users/current", userController.get);
 userRouter.delete("/api/users/logout", userController.logout);
@@ -60,6 +60,10 @@ userRouter.get("/api/dosen/:dosenId/jadwal", jadwalController.dosenJadwal);
 userRouter.get(
   "/api/dosen/:dosenId/mataKuliah",
   mataKuliahController.groupMataKuliahDosen
+);
+userRouter.get(
+  "/api/dosen/:dosenId/listPertemuan/:listPertemuanId",
+  jadwalPertemuanController.jadwalPertemuanDosen
 );
 
 // Jurusan API
@@ -120,6 +124,7 @@ userRouter.get(
 
 // Presensi Mahasiswa
 userRouter.post("/api/presensi", presensiController.create);
-userRouter.get("/api/presensi/:aktivasiId", presensiController.get);
+userRouter.delete("/api/presensi/:presensiId", presensiController.remove);
+userRouter.get("/api/listPresensi/:aktivasiId", presensiController.get);
 
 export { userRouter };

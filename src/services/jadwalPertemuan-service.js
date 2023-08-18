@@ -228,6 +228,83 @@ const jadwalPertemuanMahasiswa = async (mahasiswaId, listPertemuanId) => {
   return results;
 };
 
+const jadwalPertemuanDosen = async (dosenId, listPertemuanId) => {
+  dosenId = validate(getJadwalPertemuanValidation, dosenId);
+  listPertemuanId = validate(getJadwalPertemuanValidation, listPertemuanId);
+
+  const dosen = await prismaClient.dosen.findFirst({
+    where: {
+      id: dosenId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  const jadwalPertemuans = await prismaClient.jadwalPertemuan.findMany({
+    where: {
+      kelasMataKuliahDosen: {
+        dosen_id: dosen.id,
+      },
+      kelas_mk_dosen_id: listPertemuanId,
+    },
+    select: {
+      id: true,
+      hari: true,
+      jam_mulai: true,
+      jam_akhir: true,
+      ruangan: true,
+      waktu_realisasi: true,
+      topik_perkuliahan: true,
+      total_jam: true,
+      qr_code: true,
+      status: true,
+      kelasMataKuliahDosen: {
+        select: {
+          kelas: {
+            select: {
+              nama_kelas: true,
+            },
+          },
+          dosen: {
+            select: {
+              nama_dosen: true,
+            },
+          },
+          mataKuliah: {
+            select: {
+              nama_mk: true,
+              kode_mk: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!jadwalPertemuans || jadwalPertemuans.length === 0) {
+    throw new ResponseError(404, "Jadwal Pertemuan is not found");
+  }
+
+  const results = jadwalPertemuans.map((item) => ({
+    id: item.id,
+    hari: item.hari,
+    jam_mulai: item.jam_mulai,
+    jam_akhir: item.jam_akhir,
+    ruangan: item.ruangan,
+    waktu_realisasi: item.waktu_realisasi,
+    total_jam: item.total_jam,
+    topik_perkuliahan: item.topik_perkuliahan,
+    kelas: item.kelasMataKuliahDosen.kelas.nama_kelas,
+    dosen: item.kelasMataKuliahDosen.dosen.nama_dosen,
+    mataKuliah: item.kelasMataKuliahDosen.mataKuliah.nama_mk,
+    kode_mk: item.kelasMataKuliahDosen.mataKuliah.kode_mk,
+    qr_code: item.qr_code,
+  }));
+
+  return results;
+};
+
 const search = async (mataKuliahId, kelasId, dosenId) => {
   mataKuliahId = await checkMataKuliahMustExists(mataKuliahId);
   kelasId = await checkKelasMustExists(kelasId);
@@ -295,4 +372,5 @@ export default {
   get,
   search,
   jadwalPertemuanMahasiswa,
+  jadwalPertemuanDosen,
 };

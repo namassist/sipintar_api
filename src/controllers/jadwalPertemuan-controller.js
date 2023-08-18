@@ -38,6 +38,21 @@ const jadwalPertemuanMahasiswa = async (req, res, next) => {
     next(e);
   }
 };
+const jadwalPertemuanDosen = async (req, res, next) => {
+  try {
+    const dosenId = req.params.dosenId;
+    const listPertemuanId = req.params.listPertemuanId;
+    const result = await jadwalPertemuan.jadwalPertemuanDosen(
+      dosenId,
+      listPertemuanId
+    );
+    res.status(200).json({
+      data: result,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
 
 const update = async (req, res, next) => {
   try {
@@ -89,4 +104,5 @@ export default {
   remove,
   search,
   jadwalPertemuanMahasiswa,
+  jadwalPertemuanDosen,
 };

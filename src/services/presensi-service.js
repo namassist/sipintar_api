@@ -97,7 +97,26 @@ const get = async (aktivasiId) => {
   return result;
 };
 
+const remove = async (presensiId) => {
+  presensiId = validate(getPresensiValidation, presensiId);
+
+  const totalInDatabase = await prismaClient.presensiMahasiswa.count({
+    where: {
+      id: presensiId,
+    },
+  });
+
+  if (totalInDatabase !== 1) {
+    throw new ResponseError(404, "Presensi is not found");
+  }
+
+  return prismaClient.presensiMahasiswa.delete({
+    where: { id: presensiId },
+  });
+};
+
 export default {
   create,
   get,
+  remove,
 };
