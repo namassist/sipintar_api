@@ -65,6 +65,10 @@ userRouter.get(
   "/api/dosen/:dosenId/listPertemuan/:listPertemuanId",
   jadwalPertemuanController.jadwalPertemuanDosen
 );
+userRouter.get(
+  "/api/dosen/:dosenId/rekapitulasiPresensi",
+  rekapitulasiController.listPresensiDosen
+);
 
 // Jurusan API
 userRouter.get("/api/jurusan", jurusanController.search);
