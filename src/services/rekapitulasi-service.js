@@ -121,6 +121,11 @@ const listPresensi = async (dosenId) => {
       nama_dosen: true,
       kelasMataKuliahDosen: {
         select: {
+          kelas: {
+            select: {
+              nama_kelas: true,
+            },
+          },
           mataKuliah: {
             select: {
               nama_mk: true,
@@ -157,6 +162,7 @@ const listPresensi = async (dosenId) => {
   const result = {
     data: {
       rekapitulasi: dosen.kelasMataKuliahDosen.map((data) => {
+        const kelas = data.kelas.nama_kelas;
         const mataKuliah = data.mataKuliah.nama_mk;
 
         const total_jam =
@@ -200,6 +206,7 @@ const listPresensi = async (dosenId) => {
         });
 
         return {
+          kelas,
           mataKuliah,
           total_jam,
           total_hadir,
