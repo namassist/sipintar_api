@@ -160,61 +160,58 @@ const listPresensi = async (dosenId) => {
   }
 
   const result = {
-    data: {
-      rekapitulasi: dosen.kelasMataKuliahDosen.map((data) => {
-        const kelas = data.kelas.nama_kelas;
-        const mataKuliah = data.mataKuliah.nama_mk;
+    rekapitulasi: dosen.kelasMataKuliahDosen.map((data) => {
+      const kelas = data.kelas.nama_kelas;
+      const mataKuliah = data.mataKuliah.nama_mk;
 
-        const total_jam =
-          data.jadwal.reduce((total, jadwal) => total + jadwal.total_jam, 0) *
-          16;
+      const total_jam =
+        data.jadwal.reduce((total, jadwal) => total + jadwal.total_jam, 0) * 16;
 
-        const total_hadir = data.jadwalPertemuan.reduce((total, jadwal) => {
-          return total + jadwal.total_jam;
-        }, 0);
+      const total_hadir = data.jadwalPertemuan.reduce((total, jadwal) => {
+        return total + jadwal.total_jam;
+      }, 0);
 
-        const total_alpha = total_jam - total_hadir;
+      const total_alpha = total_jam - total_hadir;
 
-        const jadwalPertemuan = data.jadwalPertemuan.map((jadwal) => {
-          const presensiCount = jadwal.presensiMahasiswa.reduce(
-            (acc, presensi) => {
-              acc[presensi.status_presensi] =
-                (acc[presensi.status_presensi] || 0) + 1;
-              return acc;
-            },
-            {
-              Hadir: 0,
-              Izin: 0,
-              Sakit: 0,
-              Alpha: 0,
-            }
-          );
-
-          return {
-            waktu_realisasi: jadwal.waktu_realisasi,
-            jam_mulai: jadwal.jam_mulai,
-            jam_akhir: jadwal.jam_akhir,
-            total_jam: jadwal.total_jam,
-            topik_perkuliahan: jadwal.topik_perkuliahan,
-            detail: {
-              "total hadir": presensiCount.Hadir,
-              "total Izin": presensiCount.Izin,
-              "total Sakit": presensiCount.Sakit,
-              "total Alpha": presensiCount.Alpha,
-            },
-          };
-        });
+      const jadwalPertemuan = data.jadwalPertemuan.map((jadwal) => {
+        const presensiCount = jadwal.presensiMahasiswa.reduce(
+          (acc, presensi) => {
+            acc[presensi.status_presensi] =
+              (acc[presensi.status_presensi] || 0) + 1;
+            return acc;
+          },
+          {
+            Hadir: 0,
+            Izin: 0,
+            Sakit: 0,
+            Alpha: 0,
+          }
+        );
 
         return {
-          kelas,
-          mataKuliah,
-          total_jam,
-          total_hadir,
-          total_alpha,
-          jadwalPertemuan,
+          waktu_realisasi: jadwal.waktu_realisasi,
+          jam_mulai: jadwal.jam_mulai,
+          jam_akhir: jadwal.jam_akhir,
+          total_jam: jadwal.total_jam,
+          topik_perkuliahan: jadwal.topik_perkuliahan,
+          detail: {
+            total_hadir: presensiCount.Hadir,
+            total_izin: presensiCount.Izin,
+            total_sakit: presensiCount.Sakit,
+            total_alpha: presensiCount.Alpha,
+          },
         };
-      }),
-    },
+      });
+
+      return {
+        kelas,
+        mataKuliah,
+        total_jam,
+        total_hadir,
+        total_alpha,
+        jadwalPertemuan,
+      };
+    }),
   };
 
   return result;
