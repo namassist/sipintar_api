@@ -22,6 +22,24 @@ const login = async (request) => {
       id: true,
       username: true,
       password: true,
+      mahasiswa: {
+        select: {
+          id: true,
+          nama_mahasiswa: true,
+        },
+      },
+      dosen: {
+        select: {
+          id: true,
+          nama_dosen: true,
+        },
+      },
+      admin: {
+        select: {
+          id: true,
+          nama: true,
+        },
+      },
       role: true,
     },
   });
@@ -34,14 +52,41 @@ const login = async (request) => {
     loginRequest.password,
     user.password
   );
+
   if (!isPasswordValid) {
     throw new ResponseError(401, "Password salah!");
   }
 
+  let userData = {};
+
+  switch (user.role) {
+    case "Mahasiswa":
+      userData = {
+        id: user.mahasiswa?.id || null,
+        nama: user.mahasiswa?.nama_mahasiswa || null,
+      };
+      break;
+    case "Dosen":
+      userData = {
+        id: user.dosen?.id || null,
+        nama: user.dosen?.nama_dosen || null,
+      };
+      break;
+    case "Admin":
+      userData = {
+        id: user.admin?.id || null,
+        nama: user.admin?.nama || null,
+      };
+      break;
+    default:
+      break;
+  }
+
   const payload = {
-    id: user.id,
+    user_id: user.id,
     username: user.username,
     role: user.role,
+    ...userData,
   };
 
   const token = sign(payload, secretKey);
@@ -85,13 +130,22 @@ const get = async (username) => {
       },
       select: {
         id: true,
-        username: true,
+        nama_dosen: true,
         nip: true,
-        jurusan: true,
+        jurusan: {
+          select: {
+            nama_jurusan: true,
+          },
+        },
       },
     });
 
-    return dosen;
+    return {
+      id: dosen.id,
+      nama: dosen.nama_dosen,
+      nip: dosen.nip,
+      jurusan: dosen.jurusan.nama_jurusan,
+    };
   }
 
   if (user.role === "Mahasiswa") {

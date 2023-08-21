@@ -69,6 +69,11 @@ const get = async (kelasId) => {
       prodi: {
         select: {
           nama_prodi: true,
+          jurusan: {
+            select: {
+              nama_jurusan: true,
+            },
+          },
         },
       },
     },
@@ -81,8 +86,9 @@ const get = async (kelasId) => {
   return {
     id: kelas.id,
     nama_kelas: kelas.nama_kelas,
-    tahunAjaran: kelas.tahunAjaran.nama,
     prodi: kelas.prodi.nama_prodi,
+    jurusan: kelas.prodi.jurusan.nama_jurusan,
+    tahunAjaran: kelas.tahunAjaran.nama,
   };
 };
 
