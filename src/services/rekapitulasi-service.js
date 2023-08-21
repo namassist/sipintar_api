@@ -4,6 +4,7 @@ import { ResponseError } from "../errors/response-error.js";
 import {
   getRekapitulasiValidation,
   searchRekapitulasiValidation,
+  searchRekapitulasiMengajarValidation,
 } from "../validations/rekapitulasi-validation.js";
 
 const checkDosenMustExists = async (dosenId) => {
@@ -332,8 +333,96 @@ const listPresensiMahasiswa = async (request, dosenId) => {
   };
 };
 
+const listRekapitulasiMengajar = async (request, dosenId) => {
+  dosenId = await checkDosenMustExists(dosenId);
+
+  request.bulan = request.bulan || 1;
+
+  request = validate(searchRekapitulasiMengajarValidation, request);
+
+  // 1 ((page - 1) * size) = 0
+  // 2 ((page - 1) * size) = 10
+  const skip = (request.page - 1) * request.size;
+
+  const jadwalPertemuan = await prismaClient.jadwalPertemuan.findMany({
+    where: {
+      AND: [
+        {
+          waktu_realisasi: {
+            gte: new Date(`2023-${request.bulan}-01`).toISOString(),
+            lt: new Date(`2023-${request.bulan + 1}-01`).toISOString(),
+          },
+        },
+        {
+          kelasMataKuliahDosen: {
+            dosen_id: dosenId,
+          },
+        },
+      ],
+    },
+    take: request.size,
+    skip: skip,
+    select: {
+      id: true,
+      hari: true,
+      waktu_realisasi: true,
+      total_jam: true,
+      kelasMataKuliahDosen: {
+        select: {
+          kelas: {
+            select: {
+              nama_kelas: true,
+            },
+          },
+          mataKuliah: {
+            select: {
+              nama_mk: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const totalItems = await prismaClient.jadwalPertemuan.count({
+    where: {
+      AND: [
+        {
+          waktu_realisasi: {
+            gte: new Date("2023-01-01").toISOString(),
+            lt: new Date("2023-02-01").toISOString(),
+          },
+        },
+        {
+          kelasMataKuliahDosen: {
+            dosen_id: dosenId,
+          },
+        },
+      ],
+    },
+  });
+
+  const results = jadwalPertemuan.map((item) => ({
+    id: item.id,
+    mataKuliah: item.kelasMataKuliahDosen.mataKuliah.nama_mk,
+    kelas: item.kelasMataKuliahDosen.kelas.nama_kelas,
+    waktu_realisasi: item.waktu_realisasi,
+    total_jam: item.total_jam,
+  }));
+
+  return {
+    data: results,
+    paging: {
+      page: request.page,
+      total_item: totalItems,
+      total_page: Math.ceil(totalItems / request.size),
+    },
+  };
+};
+
 export default {
   list,
   listPresensi,
   listPresensiMahasiswa,
+  listRekapitulasiMengajar,
 };

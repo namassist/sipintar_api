@@ -44,8 +44,29 @@ const listPresensiMahasiswa = async (req, res, next) => {
   }
 };
 
+const listPresensiMengajar = async (req, res, next) => {
+  try {
+    const request = {
+      bulan: req.query.bulan,
+      page: req.query.page,
+      size: req.query.size,
+    };
+    const dosenId = req.params.dosenId;
+    const result = await rekapitulasiService.listRekapitulasiMengajar(
+      request,
+      dosenId
+    );
+    res.status(200).json({
+      data: result,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
 export default {
   list,
   listPresensiDosen,
   listPresensiMahasiswa,
+  listPresensiMengajar,
 };
