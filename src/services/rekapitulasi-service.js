@@ -1,10 +1,29 @@
 import { prismaClient } from "../apps/database.js";
 import { validate } from "../validations/validation.js";
 import { ResponseError } from "../errors/response-error.js";
-import { getPresensiValidation } from "../validations/presensi-validation.js";
+import {
+  getRekapitulasiValidation,
+  searchRekapitulasiValidation,
+} from "../validations/rekapitulasi-validation.js";
+
+const checkDosenMustExists = async (dosenId) => {
+  dosenId = validate(getRekapitulasiValidation, dosenId);
+
+  const totalDosentInDatabase = await prismaClient.dosen.count({
+    where: {
+      id: dosenId,
+    },
+  });
+
+  if (totalDosentInDatabase !== 1) {
+    throw new ResponseError(404, "dosen is not found");
+  }
+
+  return dosenId;
+};
 
 const list = async (mahasiswaId) => {
-  mahasiswaId = validate(getPresensiValidation, mahasiswaId);
+  mahasiswaId = validate(getRekapitulasiValidation, mahasiswaId);
 
   const mahasiswa = await prismaClient.mahasiswa.findUnique({
     where: {
@@ -109,8 +128,9 @@ const list = async (mahasiswaId) => {
 
   return result;
 };
+
 const listPresensi = async (dosenId) => {
-  dosenId = validate(getPresensiValidation, dosenId);
+  dosenId = validate(getRekapitulasiValidation, dosenId);
 
   const dosen = await prismaClient.dosen.findUnique({
     where: {
@@ -217,7 +237,103 @@ const listPresensi = async (dosenId) => {
   return result;
 };
 
+const listPresensiMahasiswa = async (request, dosenId) => {
+  dosenId = await checkDosenMustExists(dosenId);
+  request = validate(searchRekapitulasiValidation, request);
+
+  // 1 ((page - 1) * size) = 0
+  // 2 ((page - 1) * size) = 10
+  const skip = (request.page - 1) * request.size;
+
+  const filters = [];
+
+  if (request.kelas_id) {
+    filters.push({
+      OR: [
+        {
+          kelas_id: {
+            equals: parseInt(request.kelas_id),
+          },
+        },
+      ],
+    });
+  }
+
+  const mahasiswa = await prismaClient.mahasiswa.findMany({
+    where: {
+      AND: filters,
+    },
+    take: request.size,
+    skip: skip,
+    select: {
+      id: true,
+      nama_mahasiswa: true,
+      nim: true,
+      presensiMahasiswa: {
+        select: {
+          status_presensi: true,
+          jadwalPertemuan: {
+            select: {
+              total_jam: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (mahasiswa.length === 0) {
+    throw new ResponseError(404, "Mahasiswa is not found");
+  }
+
+  const totalItems = await prismaClient.mahasiswa.count({
+    where: {
+      AND: filters,
+    },
+  });
+
+  const formattedMahasiswa = mahasiswa.map((mhs) => {
+    const rekapitulasi = mhs.presensiMahasiswa.reduce(
+      (totals, presensi) => {
+        if (presensi.status_presensi === "Hadir") {
+          totals.total_hadir += presensi.jadwalPertemuan.total_jam;
+        } else if (presensi.status_presensi === "Sakit") {
+          totals.total_sakit += presensi.jadwalPertemuan.total_jam;
+        } else if (presensi.status_presensi === "Izin") {
+          totals.total_izin += presensi.jadwalPertemuan.total_jam;
+        } else if (presensi.status_presensi === "Alpha") {
+          totals.total_alpha += presensi.jadwalPertemuan.total_jam;
+        }
+        return totals;
+      },
+      {
+        total_hadir: 0,
+        total_sakit: 0,
+        total_izin: 0,
+        total_alpha: 0,
+      }
+    );
+
+    return {
+      id: mhs.id,
+      nama_mahasiswa: mhs.nama_mahasiswa,
+      nim: mhs.nim,
+      rekapitulasi,
+    };
+  });
+
+  return {
+    data: formattedMahasiswa,
+    paging: {
+      page: request.page,
+      total_item: totalItems,
+      total_page: Math.ceil(totalItems / request.size),
+    },
+  };
+};
+
 export default {
   list,
   listPresensi,
+  listPresensiMahasiswa,
 };
