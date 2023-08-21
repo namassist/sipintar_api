@@ -92,6 +92,7 @@ const create = async (request) => {
   });
 
   const encryptedData = sign(createdJadwalPertemuan, secretKey);
+  console.log(encryptedData);
 
   qrcode.toDataURL(encryptedData, async (err, url) => {
     if (err) {

@@ -1,70 +1,7 @@
 import { prismaClient } from "../apps/database.js";
 import { validate } from "../validations/validation.js";
 import { ResponseError } from "../errors/response-error.js";
-import {
-  createPresensiValidation,
-  getPresensiValidation,
-} from "../validations/presensi-validation.js";
-
-const create = async (request) => {
-  const presensi = validate(createPresensiValidation, request);
-
-  const mahasiswa = await prismaClient.mahasiswa.findUnique({
-    where: {
-      id: presensi.mahasiswa_id,
-    },
-    select: {
-      kelas_id: true,
-    },
-  });
-
-  const isAvailable = await prismaClient.jadwalPertemuan.findFirst({
-    where: {
-      kelasMataKuliahDosen: {
-        kelas_id: mahasiswa.kelas_id,
-      },
-      qr_code: presensi.qr_code,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (isAvailable.id === undefined) {
-    throw new ResponseError(404, "presensi tidak valid");
-  }
-
-  const isPresensi = await prismaClient.presensiMahasiswa.count({
-    where: {
-      jadwalPertemuan_id: isAvailable.id,
-      mahasiswa_id: presensi.mahasiswa_id,
-    },
-  });
-
-  if (isPresensi === 1) {
-    throw new ResponseError(404, "kamu sudah presensi");
-  }
-
-  const createdPresensi = await prismaClient.presensiMahasiswa.create({
-    data: {
-      jadwalPertemuan_id: isAvailable.id,
-      mahasiswa_id: presensi.mahasiswa_id,
-      waktu_presensi: presensi.waktu_presensi,
-      status_presensi: "Hadir",
-    },
-    select: {
-      id: true,
-      waktu_presensi: true,
-      status_presensi: true,
-    },
-  });
-
-  return {
-    id: createdPresensi.id,
-    waktu: createdPresensi.waktu_presensi,
-    status: createdPresensi.status_presensi,
-  };
-};
+import { getPresensiValidation } from "../validations/presensi-validation.js";
 
 const list = async (mahasiswaId) => {
   mahasiswaId = validate(getPresensiValidation, mahasiswaId);
@@ -115,6 +52,10 @@ const list = async (mahasiswaId) => {
       },
     },
   });
+
+  if (!mahasiswa) {
+    throw new ResponseError(404, "Mahasiswa not found");
+  }
 
   const result = {
     id: mahasiswa.id,
@@ -168,8 +109,111 @@ const list = async (mahasiswaId) => {
 
   return result;
 };
+const listPresensi = async (dosenId) => {
+  dosenId = validate(getPresensiValidation, dosenId);
+
+  const dosen = await prismaClient.dosen.findUnique({
+    where: {
+      id: dosenId,
+    },
+    select: {
+      id: true,
+      nama_dosen: true,
+      kelasMataKuliahDosen: {
+        select: {
+          mataKuliah: {
+            select: {
+              nama_mk: true,
+            },
+          },
+          jadwal: {
+            select: {
+              total_jam: true,
+            },
+          },
+          jadwalPertemuan: {
+            select: {
+              waktu_realisasi: true,
+              jam_mulai: true,
+              jam_akhir: true,
+              total_jam: true,
+              topik_perkuliahan: true,
+              presensiMahasiswa: {
+                select: {
+                  status_presensi: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!dosen) {
+    throw new ResponseError(404, "Dosen not found");
+  }
+
+  const result = {
+    data: {
+      rekapitulasi: dosen.kelasMataKuliahDosen.map((data) => {
+        const mataKuliah = data.mataKuliah.nama_mk;
+
+        const total_jam =
+          data.jadwal.reduce((total, jadwal) => total + jadwal.total_jam, 0) *
+          16;
+
+        const total_hadir = data.jadwalPertemuan.reduce((total, jadwal) => {
+          return total + jadwal.total_jam;
+        }, 0);
+
+        const total_alpha = total_jam - total_hadir;
+
+        const jadwalPertemuan = data.jadwalPertemuan.map((jadwal) => {
+          const presensiCount = jadwal.presensiMahasiswa.reduce(
+            (acc, presensi) => {
+              acc[presensi.status_presensi] =
+                (acc[presensi.status_presensi] || 0) + 1;
+              return acc;
+            },
+            {
+              Hadir: 0,
+              Izin: 0,
+              Sakit: 0,
+              Alpha: 0,
+            }
+          );
+
+          return {
+            waktu_realisasi: jadwal.waktu_realisasi,
+            jam_mulai: jadwal.jam_mulai,
+            jam_akhir: jadwal.jam_akhir,
+            total_jam: jadwal.total_jam,
+            topik_perkuliahan: jadwal.topik_perkuliahan,
+            detail: {
+              "total hadir": presensiCount.Hadir,
+              "total Izin": presensiCount.Izin,
+              "total Sakit": presensiCount.Sakit,
+              "total Alpha": presensiCount.Alpha,
+            },
+          };
+        });
+
+        return {
+          mataKuliah,
+          total_jam,
+          total_hadir,
+          total_alpha,
+          jadwalPertemuan,
+        };
+      }),
+    },
+  };
+
+  return result;
+};
 
 export default {
-  create,
   list,
+  listPresensi,
 };
