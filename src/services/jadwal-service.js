@@ -541,6 +541,7 @@ const jadwalMahasiswa = async (mahasiswaId) => {
       jam_akhir: true,
       ruangan: true,
       total_jam: true,
+      kelas_mk_dosen_id: true,
       kelasMataKuliahDosen: {
         select: {
           dosen: {
@@ -575,6 +576,8 @@ const jadwalMahasiswa = async (mahasiswaId) => {
     jam_akhir: item.jam_akhir,
     ruangan: item.ruangan,
     total_jam: item.total_jam,
+    total_jam: item.total_jam,
+    kelas_mk_dosen_id: item.kelas_mk_dosen_id,
     dosen: item.kelasMataKuliahDosen.dosen.nama_dosen,
     nama_mk: item.kelasMataKuliahDosen.mataKuliah.nama_mk,
     kode_mk: item.kelasMataKuliahDosen.mataKuliah.kode_mk,

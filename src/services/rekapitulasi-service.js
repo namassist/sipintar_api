@@ -85,6 +85,11 @@ const list = async (mahasiswaId) => {
                   nama_mk: true,
                 },
               },
+              dosen: {
+                select: {
+                  nama_dosen: true,
+                },
+              },
               jadwal: {
                 select: {
                   total_jam: true,
@@ -116,22 +121,23 @@ const list = async (mahasiswaId) => {
     nama_mahasiswa: mahasiswa.nama_mahasiswa,
     rekapitulasi: mahasiswa.kelas.kelasMataKuliahDosen.map((data) => {
       const mataKuliah = data.mataKuliah.nama_mk;
+      const dosen = data.dosen.nama_dosen;
       const total_jam =
         data.jadwal.reduce((total, jadwal) => total + jadwal.total_jam, 0) * 16;
       const total_hadir = data.jadwalPertemuan.reduce((total, jadwal) => {
-        if (jadwal.presensiMahasiswa[0].status_presensi === "Hadir") {
+        if (jadwal.presensiMahasiswa[0]?.status_presensi === "Hadir") {
           return total + jadwal.total_jam;
         }
         return total;
       }, 0);
       const total_sakit = data.jadwalPertemuan.reduce((total, jadwal) => {
-        if (jadwal.presensiMahasiswa[0].status_presensi === "Sakit") {
+        if (jadwal.presensiMahasiswa[0]?.status_presensi === "Sakit") {
           return total + jadwal.total_jam;
         }
         return total;
       }, 0);
       const total_izin = data.jadwalPertemuan.reduce((total, jadwal) => {
-        if (jadwal.presensiMahasiswa[0].status_presensi === "Izin") {
+        if (jadwal.presensiMahasiswa[0]?.status_presensi === "Izin") {
           return total + jadwal.total_jam;
         }
         return total;
@@ -144,11 +150,12 @@ const list = async (mahasiswaId) => {
         jam_akhir: jadwal.jam_akhir,
         total_jam: jadwal.total_jam,
         topik_perkuliahan: jadwal.topik_perkuliahan,
-        status_presensi: jadwal.presensiMahasiswa[0].status_presensi,
+        status_presensi: jadwal.presensiMahasiswa[0]?.status_presensi,
       }));
 
       return {
         mataKuliah,
+        dosen,
         total_jam,
         total_hadir,
         total_izin,

@@ -5,6 +5,9 @@ import {
   createPresensiValidation,
   getPresensiValidation,
 } from "../validations/presensi-validation.js";
+import pkg from "jsonwebtoken";
+const { verify } = pkg;
+const secretKey = "rifkasyantik";
 
 const create = async (request) => {
   const presensi = validate(createPresensiValidation, request);
@@ -18,12 +21,23 @@ const create = async (request) => {
     },
   });
 
+  const data = verify(presensi.token, secretKey);
+
   const isAvailable = await prismaClient.jadwalPertemuan.findFirst({
     where: {
       kelasMataKuliahDosen: {
         kelas_id: mahasiswa.kelas_id,
       },
-      qr_code: presensi.qr_code,
+      id: data.id,
+      hari: data.hari,
+      jam_mulai: data.jam_mulai,
+      jam_akhir: data.jam_akhir,
+      waktu_realisasi: data.waktu_realisasi,
+      ruangan: data.ruangan,
+      total_jam: data.total_jam,
+      topik_perkuliahan: data.topik_perkuliahan,
+      kelas_mk_dosen_id: data.kelas_mk_dosen_id,
+      status: data.status,
     },
     select: {
       id: true,
