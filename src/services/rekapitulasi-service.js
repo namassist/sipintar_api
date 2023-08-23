@@ -336,30 +336,27 @@ const listPresensiMahasiswa = async (request, dosenId) => {
 const listRekapitulasiMengajar = async (request, dosenId) => {
   dosenId = await checkDosenMustExists(dosenId);
 
-  request.bulan = request.bulan || 1;
-
   request = validate(searchRekapitulasiMengajarValidation, request);
 
   // 1 ((page - 1) * size) = 0
   // 2 ((page - 1) * size) = 10
   const skip = (request.page - 1) * request.size;
 
-  const jadwalPertemuan = await prismaClient.jadwalPertemuan.findMany({
-    where: {
-      AND: [
-        {
-          waktu_realisasi: {
-            gte: new Date(`2023-${request.bulan}-01`).toISOString(),
-            lt: new Date(`2023-${request.bulan + 1}-01`).toISOString(),
-          },
-        },
-        {
-          kelasMataKuliahDosen: {
-            dosen_id: dosenId,
-          },
-        },
-      ],
+  const whereClause = {
+    kelasMataKuliahDosen: {
+      dosen_id: dosenId,
     },
+  };
+
+  if (request.bulan) {
+    whereClause.waktu_realisasi = {
+      gte: new Date(`2023-${request.bulan}-01`).toISOString(),
+      lt: new Date(`2023-${Number(request.bulan) + 1}-01`).toISOString(),
+    };
+  }
+
+  const jadwalPertemuan = await prismaClient.jadwalPertemuan.findMany({
+    where: whereClause,
     take: request.size,
     skip: skip,
     select: {
