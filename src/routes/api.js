@@ -133,6 +133,10 @@ userRouter.get(
   "/api/aktivasiPerkuliahan/:aktivasiId",
   jadwalPertemuanController.get
 );
+userRouter.put(
+  "/api/aktivasiPerkuliahan/:aktivasiId",
+  jadwalPertemuanController.update
+);
 
 // Presensi Mahasiswa
 userRouter.post("/api/presensi", presensiController.create);

@@ -32,21 +32,25 @@ const create = async (request) => {
       hari: data.hari,
       jam_mulai: data.jam_mulai,
       jam_akhir: data.jam_akhir,
-      waktu_realisasi: data.waktu_realisasi,
       ruangan: data.ruangan,
       total_jam: data.total_jam,
       topik_perkuliahan: data.topik_perkuliahan,
       kelas_mk_dosen_id: data.kelas_mk_dosen_id,
-      status: data.status,
     },
     select: {
       id: true,
       kelas_mk_dosen_id: true,
+      status: true,
+      waktu_realisasi: true,
     },
   });
 
-  if (isAvailable.id === undefined) {
+  if (!isAvailable) {
     throw new ResponseError(404, "presensi tidak valid");
+  }
+
+  if (!isAvailable.status) {
+    throw new ResponseError(410, "presensi ditutup");
   }
 
   const isPresensi = await prismaClient.presensiMahasiswa.count({

@@ -23,44 +23,11 @@ const get = async (req, res, next) => {
   }
 };
 
-const jadwalPertemuanMahasiswa = async (req, res, next) => {
-  try {
-    const mahasiswaId = req.params.mahasiswaId;
-    const listPertemuanId = req.params.listPertemuanId;
-    const result = await jadwalPertemuan.jadwalPertemuanMahasiswa(
-      mahasiswaId,
-      listPertemuanId
-    );
-    res.status(200).json({
-      data: result,
-    });
-  } catch (e) {
-    next(e);
-  }
-};
-const jadwalPertemuanDosen = async (req, res, next) => {
-  try {
-    const dosenId = req.params.dosenId;
-    const listPertemuanId = req.params.listPertemuanId;
-    const result = await jadwalPertemuan.jadwalPertemuanDosen(
-      dosenId,
-      listPertemuanId
-    );
-    res.status(200).json({
-      data: result,
-    });
-  } catch (e) {
-    next(e);
-  }
-};
-
 const update = async (req, res, next) => {
   try {
-    const jadwalPertemuan = req.params.jadwalPertemuan;
-    const request = req.body;
-    request.id = jadwalPertemuan;
+    const aktivasiId = req.params.aktivasiId;
 
-    const result = await jadwalPertemuan.update(request);
+    const result = await jadwalPertemuan.updateStatus(aktivasiId);
     res.status(200).json({
       data: result,
     });
@@ -97,10 +64,42 @@ const search = async (req, res, next) => {
   }
 };
 
+const jadwalPertemuanMahasiswa = async (req, res, next) => {
+  try {
+    const mahasiswaId = req.params.mahasiswaId;
+    const listPertemuanId = req.params.listPertemuanId;
+    const result = await jadwalPertemuan.jadwalPertemuanMahasiswa(
+      mahasiswaId,
+      listPertemuanId
+    );
+    res.status(200).json({
+      data: result,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
+const jadwalPertemuanDosen = async (req, res, next) => {
+  try {
+    const dosenId = req.params.dosenId;
+    const listPertemuanId = req.params.listPertemuanId;
+    const result = await jadwalPertemuan.jadwalPertemuanDosen(
+      dosenId,
+      listPertemuanId
+    );
+    res.status(200).json({
+      data: result,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
 export default {
   create,
-  update,
   get,
+  update,
   remove,
   search,
   jadwalPertemuanMahasiswa,

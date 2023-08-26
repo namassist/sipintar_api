@@ -9,6 +9,7 @@ import { ResponseError } from "../errors/response-error.js";
 import {
   createJadwalPertemuanValidation,
   getJadwalPertemuanValidation,
+  updateJadwalPertemuanValidation,
 } from "../validations/jadwalPertemuan-validation.js";
 const { sign } = pkg;
 
@@ -92,7 +93,6 @@ const create = async (request) => {
   });
 
   const encryptedData = sign(createdJadwalPertemuan, secretKey);
-  console.log(encryptedData);
 
   qrcode.toDataURL(encryptedData, async (err, url) => {
     if (err) {
@@ -150,6 +150,71 @@ const get = async (aktivasiId) => {
     kelas_mk_dosen_id: jadwalPertemuan.kelas_mk_dosen_id,
     qr_code: jadwalPertemuan.qr_code,
   };
+};
+
+const updateStatus = async (id) => {
+  const aktivasiId = validate(getJadwalPertemuanValidation, id);
+
+  const totalJadwalPertemuanInDb = await prismaClient.jadwalPertemuan.count({
+    where: {
+      id: aktivasiId,
+    },
+  });
+
+  if (totalJadwalPertemuanInDb !== 1) {
+    throw new ResponseError(404, "Jadwal Pertemuan is not found");
+  }
+
+  const updatedStatus = await prismaClient.jadwalPertemuan.update({
+    where: {
+      id: aktivasiId,
+    },
+    data: {
+      status: false,
+    },
+    select: {
+      kelas_mk_dosen_id: true,
+    },
+  });
+
+  // Ambil kelasMkDosenId terkait dengan jadwal pertemuan
+  const kelasMkDosen = await prismaClient.jadwalPertemuan
+    .findUnique({
+      where: {
+        id: parseInt(aktivasiId),
+      },
+    })
+    .kelasMataKuliahDosen();
+
+  // Ambil daftar mahasiswa dalam kelas terkait
+  const mahasiswaList = await prismaClient.mahasiswa.findMany({
+    where: { kelas_id: kelasMkDosen.kelas_id },
+  });
+
+  for (const mahasiswa of mahasiswaList) {
+    const existingPresensi = await prismaClient.presensiMahasiswa.findFirst({
+      where: {
+        mahasiswa_id: mahasiswa.id,
+        jadwalPertemuan_id: parseInt(aktivasiId),
+      },
+    });
+
+    if (!existingPresensi) {
+      await prismaClient.presensiMahasiswa.create({
+        data: {
+          jadwalPertemuan: { connect: { id: parseInt(aktivasiId) } },
+          kelasMataKuliahDosen: {
+            connect: { kelas_mk_dosen_id: kelasMkDosen.kelas_mk_dosen_id },
+          },
+          mahasiswa: { connect: { id: mahasiswa.id } },
+          status_presensi: "Alpa",
+          waktu_presensi: "2023-01-01T00:00:00.000Z",
+        },
+      });
+    }
+  }
+
+  return "Berhasil tutup presensi";
 };
 
 const jadwalPertemuanMahasiswa = async (mahasiswaId, listPertemuanId) => {
@@ -371,6 +436,7 @@ const search = async (mataKuliahId, kelasId, dosenId) => {
 export default {
   create,
   get,
+  updateStatus,
   search,
   jadwalPertemuanMahasiswa,
   jadwalPertemuanDosen,

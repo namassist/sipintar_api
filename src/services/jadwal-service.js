@@ -531,7 +531,7 @@ const jadwalMahasiswa = async (mahasiswaId) => {
   const jadwals = await prismaClient.jadwal.findMany({
     where: {
       kelasMataKuliahDosen: {
-        kelas_id: kelas.id,
+        kelas_id: kelas.kelas_id,
       },
     },
     select: {
