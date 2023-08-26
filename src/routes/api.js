@@ -49,6 +49,10 @@ userRouter.get(
   "/api/mahasiswa/:mahasiswaId/rekapitulasi",
   rekapitulasiController.list
 );
+userRouter.get(
+  "/api/mahasiswa/:mahasiswaId/akumulasi",
+  rekapitulasiController.akumulasiMahasiswa
+);
 
 // Dosen API
 userRouter.get("/api/dosen", dosenController.search);

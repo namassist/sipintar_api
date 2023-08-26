@@ -103,7 +103,12 @@ const list = async (mahasiswaId) => {
         }
         return total;
       }, 0);
-      const total_alpha = total_jam - (total_hadir + total_izin + total_sakit);
+      const total_alpa = data.jadwalPertemuan.reduce((total, jadwal) => {
+        if (jadwal.presensiMahasiswa[0]?.status_presensi === "Alpa") {
+          return total + jadwal.total_jam;
+        }
+        return total;
+      }, 0);
 
       const jadwalPertemuan = data.jadwalPertemuan.map((jadwal) => ({
         waktu_realisasi: jadwal.waktu_realisasi,
@@ -121,7 +126,7 @@ const list = async (mahasiswaId) => {
         total_hadir,
         total_izin,
         total_sakit,
-        total_alpha,
+        total_alpa,
         jadwalPertemuan,
       };
     }),
@@ -302,8 +307,8 @@ const listPresensiMahasiswa = async (request, dosenId) => {
           totals.total_sakit += presensi.jadwalPertemuan.total_jam;
         } else if (presensi.status_presensi === "Izin") {
           totals.total_izin += presensi.jadwalPertemuan.total_jam;
-        } else if (presensi.status_presensi === "Alpha") {
-          totals.total_alpha += presensi.jadwalPertemuan.total_jam;
+        } else if (presensi.status_presensi === "Alpa") {
+          totals.total_alpa += presensi.jadwalPertemuan.total_jam;
         }
         return totals;
       },
@@ -311,7 +316,7 @@ const listPresensiMahasiswa = async (request, dosenId) => {
         total_hadir: 0,
         total_sakit: 0,
         total_izin: 0,
-        total_alpha: 0,
+        total_alpa: 0,
       }
     );
 
@@ -417,9 +422,70 @@ const listRekapitulasiMengajar = async (request, dosenId) => {
   };
 };
 
+const akumulasiTotalJamMahasiswa = async (mahasiswaId) => {
+  mahasiswaId = validate(getRekapitulasiValidation, mahasiswaId);
+
+  const mahasiswa = await prismaClient.mahasiswa.findUnique({
+    where: {
+      id: mahasiswaId,
+    },
+    select: {
+      id: true,
+      nama_mahasiswa: true,
+      presensiMahasiswa: {
+        select: {
+          status_presensi: true,
+          jadwalPertemuan: {
+            select: {
+              total_jam: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!mahasiswa) {
+    throw new ResponseError(404, "Mahasiswa not found");
+  }
+
+  const result = {
+    id: mahasiswa.id,
+    nama_mahasiswa: mahasiswa.nama_mahasiswa,
+    akumulasi: {
+      total_hadir: 0,
+      total_izin: 0,
+      total_sakit: 0,
+      total_alpa: 0,
+    },
+  };
+
+  mahasiswa.presensiMahasiswa.forEach((presensi) => {
+    switch (presensi.status_presensi) {
+      case "Hadir":
+        result.akumulasi.total_hadir += presensi.jadwalPertemuan.total_jam;
+        break;
+      case "Izin":
+        result.akumulasi.total_izin += presensi.jadwalPertemuan.total_jam;
+        break;
+      case "Sakit":
+        result.akumulasi.total_sakit += presensi.jadwalPertemuan.total_jam;
+        break;
+      case "Alpa":
+        result.akumulasi.total_alpa += presensi.jadwalPertemuan.total_jam;
+        break;
+      default:
+        break;
+    }
+  });
+
+  return result;
+};
+
 export default {
   list,
   listPresensi,
   listPresensiMahasiswa,
   listRekapitulasiMengajar,
+  akumulasiTotalJamMahasiswa,
 };

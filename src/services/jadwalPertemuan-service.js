@@ -177,7 +177,6 @@ const updateStatus = async (id) => {
     },
   });
 
-  // Ambil kelasMkDosenId terkait dengan jadwal pertemuan
   const kelasMkDosen = await prismaClient.jadwalPertemuan
     .findUnique({
       where: {

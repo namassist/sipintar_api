@@ -64,9 +64,24 @@ const listPresensiMengajar = async (req, res, next) => {
   }
 };
 
+const akumulasiMahasiswa = async (req, res, next) => {
+  try {
+    const mahasiswaId = req.params.mahasiswaId;
+    const result = await rekapitulasiService.akumulasiTotalJamMahasiswa(
+      mahasiswaId
+    );
+    res.status(200).json({
+      data: result,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
 export default {
   list,
   listPresensiDosen,
   listPresensiMahasiswa,
   listPresensiMengajar,
+  akumulasiMahasiswa,
 };
