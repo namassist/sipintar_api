@@ -287,6 +287,7 @@ const jadwalPertemuanMahasiswa = async (mahasiswaId, listPertemuanId) => {
     dosen: item.kelasMataKuliahDosen.dosen.nama_dosen,
     mataKuliah: item.kelasMataKuliahDosen.mataKuliah.nama_mk,
     kode_mk: item.kelasMataKuliahDosen.mataKuliah.kode_mk,
+    status: item.status,
     qr_code: item.qr_code,
   }));
 
