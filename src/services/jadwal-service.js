@@ -310,7 +310,7 @@ const search = async (request) => {
       OR: [
         {
           tahun_ajaran_id: {
-            equals: parseInt(request.tahun_ajaran_id),
+            equals: request.tahun_ajaran_id,
           },
         },
       ],
@@ -321,32 +321,10 @@ const search = async (request) => {
     filters.push({
       OR: [
         {
-          kelas_id: {
-            equals: parseInt(request.kelas_id),
-          },
-        },
-      ],
-    });
-  }
-
-  if (request.mata_kuliah_id) {
-    filters.push({
-      OR: [
-        {
-          mata_kuliah_id: {
-            equals: parseInt(request.mata_kuliah_id),
-          },
-        },
-      ],
-    });
-  }
-
-  if (request.dosen_id) {
-    filters.push({
-      OR: [
-        {
-          dosen_id: {
-            equals: parseInt(request.dosen_id),
+          kelasMataKuliahDosen: {
+            kelas_id: {
+              equals: request.kelas_id,
+            },
           },
         },
       ],

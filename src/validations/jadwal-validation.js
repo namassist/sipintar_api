@@ -48,10 +48,8 @@ const updateJadwalValidation = Joi.object({
 const searchJadwalValidation = Joi.object({
   page: Joi.number().min(1).positive().default(1),
   size: Joi.number().min(1).positive().max(100).default(10),
-  kelas_id: Joi.string().allow("").optional(),
-  tahun_ajaran_id: Joi.string().allow("").optional(),
-  dosen_id: Joi.string().allow("").optional(),
-  mata_kuliah_id: Joi.string().allow("").optional(),
+  kelas_id: Joi.number().allow("").optional(),
+  tahun_ajaran_id: Joi.number().allow("").optional(),
 });
 
 export {

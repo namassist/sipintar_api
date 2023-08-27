@@ -56,8 +56,6 @@ const search = async (req, res, next) => {
     const request = {
       kelas_id: req.query.kelas_id,
       tahun_ajaran_id: req.query.tahun_ajaran_id,
-      dosen_id: req.query.dosen_id,
-      mata_kuliah_id: req.query.mata_kuliah_id,
       page: req.query.page,
       size: req.query.size,
     };
