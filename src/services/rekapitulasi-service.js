@@ -386,6 +386,13 @@ const listRekapitulasiMengajar = async (request, dosenId) => {
     },
   });
 
+  const totalJam = await prismaClient.jadwalPertemuan.findMany({
+    where: whereClause,
+    select: {
+      total_jam: true,
+    },
+  });
+
   const totalItems = await prismaClient.jadwalPertemuan.count({
     where: whereClause,
   });
@@ -398,8 +405,18 @@ const listRekapitulasiMengajar = async (request, dosenId) => {
     total_jam: item.total_jam,
   }));
 
+  const totalJamMengajar = totalJam.reduce(
+    (total, entry) => total + entry.total_jam,
+    0
+  );
+
   return {
     data: results,
+    rekapitulasi: {
+      total_jam_mengajar: totalJamMengajar,
+      total_kewajiban_mengajar: 36,
+      total_kelebihan_mengajar: totalJamMengajar - 36,
+    },
     paging: {
       page: request.page,
       total_item: totalItems,

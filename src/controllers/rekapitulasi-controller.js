@@ -59,6 +59,7 @@ const listPresensiMengajar = async (req, res, next) => {
     );
     res.status(200).json({
       data: result.data,
+      rekapitulasi: result.rekapitulasi,
       paging: result.paging,
     });
   } catch (e) {
