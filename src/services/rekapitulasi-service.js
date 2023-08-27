@@ -387,21 +387,7 @@ const listRekapitulasiMengajar = async (request, dosenId) => {
   });
 
   const totalItems = await prismaClient.jadwalPertemuan.count({
-    where: {
-      AND: [
-        {
-          waktu_realisasi: {
-            gte: new Date("2023-01-01").toISOString(),
-            lt: new Date("2023-02-01").toISOString(),
-          },
-        },
-        {
-          kelasMataKuliahDosen: {
-            dosen_id: dosenId,
-          },
-        },
-      ],
-    },
+    where: whereClause,
   });
 
   const results = jadwalPertemuan.map((item) => ({

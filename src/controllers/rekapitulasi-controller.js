@@ -37,7 +37,8 @@ const listPresensiMahasiswa = async (req, res, next) => {
       dosenId
     );
     res.status(200).json({
-      data: result,
+      data: result.data,
+      paging: result.paging,
     });
   } catch (e) {
     next(e);
@@ -57,7 +58,8 @@ const listPresensiMengajar = async (req, res, next) => {
       dosenId
     );
     res.status(200).json({
-      data: result,
+      data: result.data,
+      paging: result.paging,
     });
   } catch (e) {
     next(e);
